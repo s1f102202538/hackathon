@@ -1,0 +1,32 @@
+ARG NODE_VERSION=20
+
+FROM node:${NODE_VERSION}-bullseye AS base
+
+WORKDIR /usr/src/app
+
+FROM base AS deps
+
+RUN --mount=type=bind,source=./next/package.json,target=package.json \
+    --mount=type=bind,source=./next/yarn.lock,target=yarn.lock \
+    --mount=type=cache,target=/root/.yarn \
+    yarn install --production --frozen-lockfile
+
+FROM deps AS build
+
+COPY ./next .
+
+RUN yarn run build
+
+FROM base AS final
+
+ENV NODE_ENV production
+
+USER node
+
+COPY ./next/package.json .
+
+COPY --from=deps /usr/src/app/node_modules ./node_modules
+COPY --from=build /usr/src/app/.next ./.next
+COPY ./next/public ./public
+
+CMD yarn start

@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  next:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.prod
+    depends_on:
+      - db
+    tty: true
+  db:
+    image: postgres:15.4
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file:
+      - .env.prod
+
+volumes:
+  postgres-data:
