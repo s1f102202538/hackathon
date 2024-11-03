@@ -8,6 +8,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ..:/hackathon:delegated
+      - node_modules:/hackathon/next/node_modules
     ports:
       - 3000:3000
     working_dir: /hackathon
@@ -26,4 +27,5 @@ services:
       - .env
 
 volumes:
+  node_modules:
   postgres-data:

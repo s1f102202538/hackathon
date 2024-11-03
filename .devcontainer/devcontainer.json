@@ -3,6 +3,7 @@
   "dockerComposeFile": ["./docker-compose.yml"],
   "service": "hackathon",
   "workspaceFolder": "/hackathon",
+  "postCreateCommand": "/bin/sh .devcontainer/postCreateCommand.sh",
 
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
