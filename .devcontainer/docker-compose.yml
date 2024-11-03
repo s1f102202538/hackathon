@@ -1,0 +1,29 @@
+version: "3.8"
+
+services:
+  hackathon:
+    user: node
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/hackathon:delegated
+    ports:
+      - 3000:3000
+    working_dir: /hackathon
+    env_file:
+      - .env
+    depends_on:
+      - db
+    tty: true
+  db:
+    image: postgres:15.4
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    env_file:
+      - .env
+
+volumes:
+  postgres-data:

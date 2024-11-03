@@ -1,0 +1,16 @@
+{
+  "files.eol": "\n",
+
+  "eslint.workingDirectories": [{ "mode": "auto" }],
+
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+
+  "[javascript]": {
+    "editor.formatOnSave": false
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  "prettier.printWidth": 160
+}
