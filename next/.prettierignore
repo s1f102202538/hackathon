@@ -1,0 +1,7 @@
+# text
+*.md
+*.txt
+*.csv
+
+# Dependency directories
+node_modules/*

@@ -6,11 +6,16 @@
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
 
+  "css.validate": false,
+  "[css]": {
+    "editor.formatOnSave": true
+  },
+
   "[javascript]": {
     "editor.formatOnSave": false
   },
+
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
-  },
-  "prettier.printWidth": 160
+  }
 }

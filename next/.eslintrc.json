@@ -17,7 +17,8 @@
     "next/core-web-vitals",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
-    "next/typescript"
+    "next/typescript",
+    "prettier"
   ],
   "plugins": ["@typescript-eslint", "react"],
   "rules": {
