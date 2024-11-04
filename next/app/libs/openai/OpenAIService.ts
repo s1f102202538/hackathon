@@ -4,8 +4,8 @@ import OpenAI from 'openai';
 // OPENAI_BASE_URL=https://api.openai.iniad.org/api/v1
 export default class OpenAIService {
   private static readonly openai = new OpenAI({
-    // baseURL: `${process.env.OPENAI_BASE_URL}`,
-    // apiKey: `${process.env.OPENAI_API_KEY}`,
+    baseURL: `${process.env.OPENAI_BASE_URL}`,
+    apiKey: `${process.env.OPENAI_API_KEY}`,
   });
 
   public static async Ask(content: string): Promise<string[] | null> {
