@@ -13,8 +13,9 @@
     "axios": "^1.7.7",
     "next": "14.2.13",
     "next.js": "^1.0.3",
-    "react": "19.0.0-rc-02c0e824-20241028",
-    "react-dom": "19.0.0-rc-02c0e824-20241028"
+    "openai": "^4.70.2",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/node": "^20",
