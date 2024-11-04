@@ -20,7 +20,6 @@ const SpeakPage = () => {
           <TranslationCard mean="Ikebukuro" ja="池袋" roman="Ikebukuro" />
           <TranslationCard mean="want to go" ja="行きたい" roman="ikitai" />
           <TranslationCard mean="want to go" ja="行きたい" roman="ikitai" />
-          <TranslationCard mean="want to go" ja="行きたい" roman="ikitai" />
         </div>
       </main>
 
