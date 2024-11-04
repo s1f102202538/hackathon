@@ -12,7 +12,8 @@ export type TranslateResponse = {
 
 export async function POST(req: NextRequest): Promise<NextResponse<TranslateResponse>> {
   const params: TranslateParams = await req.json();
-  console.log(params);
+  console.log('params: ', params);
+
   const result = await OpenAIService.Ask(params.content);
   return NextResponse.json({
     words: result,

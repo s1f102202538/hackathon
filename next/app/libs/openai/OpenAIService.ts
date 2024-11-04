@@ -1,5 +1,7 @@
 import OpenAI from 'openai';
 
+// OPENAI_API_KEY=lD6B4UmuZU-9DDnC_P6EutwjSNXrHDPjs4K-qam6qypUp_7-GEYRMQep2JEdLKYDyx6_HIndhWIa-3UyiCVvakA
+// OPENAI_BASE_URL=https://api.openai.iniad.org/api/v1
 export default class OpenAIService {
   private static readonly openai = new OpenAI({
     baseURL: `${process.env.OPENAI_BASE_URL}`,
@@ -7,12 +9,13 @@ export default class OpenAIService {
   });
 
   public static async Ask(content: string): Promise<string[] | null> {
+    console.log(`baseURL: ${process.env.OPENAI_BASE_URL}`);
     console.log(`apikey: ${process.env.OPENAI_API_KEY}`);
     const completion = await this.openai.chat.completions.create({
       messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
       model: 'gpt-4o-mini',
     });
-    console.log(completion);
+    console.log('completion:', completion);
     const answer = completion.choices[0].message?.content;
     if (answer != null) {
       return this.createWordsArray(answer);
