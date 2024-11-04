@@ -11,6 +11,7 @@
   "dependencies": {
     "@prisma/client": "^5.21.1",
     "axios": "^1.7.7",
+    "lucide-react": "^0.454.0",
     "next": "14.2.13",
     "next.js": "^1.0.3",
     "react": "19.0.0-rc-02c0e824-20241028",
