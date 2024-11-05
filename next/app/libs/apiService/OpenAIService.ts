@@ -23,9 +23,10 @@ export default class OpenAIService {
 以下の文章を日本語に翻訳して、条件に従って文意が通るように言葉を抽出して下さい。
 ・条件
   ・6単語以下にすること
-  ・例: I'm looking for a place to eat → ごはん, 探す
+  ・単語はひらがなにすること
+  ・例: I'm looking for a place to eat → ごはん, さがす
   ・回答は以下のフォーマットに従うこと
-    ・"ごはん", "探す"
+    ・"ごはん", "さがす"
 ・文章
 ${content}
     `;
