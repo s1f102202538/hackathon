@@ -82,7 +82,11 @@
 
 'use client';
 
+<<<<<<< HEAD
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+=======
+import { useSpeechRecognition } from 'app/hooks/useSpeechRecognition';
+>>>>>>> origin/main
 import { Mic, Square, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';

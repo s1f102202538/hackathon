@@ -25,8 +25,7 @@ export default class DeepLService {
   }
 
   private static createTranslateWordsArray(translateText: string): string[] {
-    // 半角英数字のみを抽出
-    const wordArray = translateText.split('^[a-zA-Z0-9]*$');
-    return wordArray;
+    const wordsArray = translateText.split(',');
+    return wordsArray;
   }
 }
