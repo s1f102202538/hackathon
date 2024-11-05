@@ -1,5 +1,4 @@
 import OpenAI from 'openai';
-
 export default class OpenAIService {
   private static readonly openai = new OpenAI({
     baseURL: `${process.env.OPENAI_BASE_URL}`,
