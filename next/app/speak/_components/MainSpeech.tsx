@@ -82,11 +82,7 @@
 
 'use client';
 
-<<<<<<< HEAD
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
-=======
-import { useSpeechRecognition } from 'app/hooks/useSpeechRecognition';
->>>>>>> origin/main
 import { Mic, Square, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -116,6 +112,7 @@ const MainSpeech = () => {
       try {
         const response = await axios.post('/api/get-words', { content: inputText });
         setWordsArray(response.data.wordsArray);
+        console.log(response.data.wordsArray);
       } catch (error) {
         console.error('Error fetching translation:', error);
       }
@@ -186,7 +183,7 @@ const MainSpeech = () => {
       {/* TranslationCardsの表示 */}
       <div className="grid grid-cols-3 gap-4">
         {wordsArray.map((word, index) => (
-          <TranslationCard key={index} mean={word.en} ja={word.jp} roman={word.jp} />
+          <TranslationCard key={index} mean={word.en} ja={word.jp} />
         ))}
       </div>
     </div>

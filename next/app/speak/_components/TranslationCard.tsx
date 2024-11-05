@@ -9,7 +9,7 @@ type TranslationCardProps = {
 const TranslationCard = ({ mean, ja, roman }: TranslationCardProps) => {
   return (
     <div className="bg-white rounded-xl shadow p-4">
-      <div className="text-black">
+      <div className="text-b">
         <p>{mean}</p>
         <div className="flex justify-between">
           <p className="text-lg text-gray-800">{ja}</p>
