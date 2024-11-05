@@ -15,6 +15,10 @@
     "editor.formatOnSave": false
   },
 
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  },
+
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   }
