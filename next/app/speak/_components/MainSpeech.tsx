@@ -1,6 +1,6 @@
 'use client';
 
-import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
+import { useSpeechRecognition } from 'app/hooks/useSpeechRecognition';
 import { Mic, Square, Pencil } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
