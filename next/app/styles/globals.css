@@ -1,7 +1,7 @@
-/* stylelint-disable import-notation */
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+/* stylelint-disable at-rule-no-unknown */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #fff;
