@@ -1,6 +1,5 @@
 import React from 'react';
 import Navbar from './components/layout/navbar/page';
-import Map from './components/ui/map/document';
 
 const Home = () => (
   <div>
@@ -9,7 +8,6 @@ const Home = () => (
     <div>success</div>
     <div> jkdjfoisjasjf </div>
     <div>keke </div>
-    <Map />
     <Navbar />
   </div>
 );
