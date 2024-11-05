@@ -2,14 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 
 import OpenAIService from 'app/libs/apiService/OpenAIService';
 import DeepLService from 'app/libs/apiService/DeepLService';
-import { Words } from 'app/types/Words';
+import { Word } from 'app/types/Word';
 
 export type GetWordsParams = {
   content: string;
 };
 
 export type GetWordsResponse = {
-  wordsArray: Words[];
+  wordsArray: Word[];
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<GetWordsResponse>> {
@@ -17,9 +17,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<GetWordsRespo
 
   const jp = await OpenAIService.Ask(params.content);
   const en = await DeepLService.TranslatorWordsArray(jp, 'EN');
-  const wordsArray: Words[] = [];
+  const wordsArray: Word[] = [];
   for (let i = 0; i < jp.length; i++) {
-    const words: Words = {
+    const words: Word = {
       jp: jp[i],
       en: en[i],
     };
