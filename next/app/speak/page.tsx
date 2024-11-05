@@ -2,7 +2,6 @@
 
 import Navbar from '../components/layout/navbar/page';
 import MainSpeech from './_components/MainSpeech';
-import TranslationCard from './_components/TranslationCard';
 
 const SpeakPage = () => {
   return (

@@ -1,4 +1,5 @@
 import { Volume2 } from 'lucide-react';
+import { toRomaji } from 'wanakana';
 
 type TranslationCardProps = {
   mean: string;
@@ -6,7 +7,9 @@ type TranslationCardProps = {
   roman: string;
 };
 
-const TranslationCard = ({ mean, ja, roman }: TranslationCardProps) => {
+const TranslationCard = ({ mean, ja }: TranslationCardProps) => {
+  const roman = toRomaji(ja);
+
   return (
     <div className="bg-white rounded-xl shadow p-4">
       <div className="text-b">

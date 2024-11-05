@@ -1,4 +1,4 @@
-export type Words = {
+export type Word = {
   jp: string;
   en: string;
 };
