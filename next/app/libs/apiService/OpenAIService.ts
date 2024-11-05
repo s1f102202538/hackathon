@@ -10,7 +10,6 @@ export default class OpenAIService {
       messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
       model: 'gpt-4o-mini',
     });
-    console.log('completion:', completion);
     const answer = completion.choices[0].message?.content;
     if (answer != null) {
       return this.createWordsArray(answer);

@@ -1,15 +1,24 @@
 'use client';
 
-import { Mic, Pencil } from 'lucide-react';
-import { useState } from 'react';
+import { useSpeechRecognition } from '@/app/hooks/useSpeechRecognition';
+import { Mic, Square, Pencil } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 const MainSpeech = () => {
-  const [isListening, setIsListening] = useState(false);
+  const { isRecording, setIsRecording, text, transcript } = useSpeechRecognition();
   const [isEditing, setIsEditing] = useState(false);
   const [inputText, setInputText] = useState('I want to go to Ikebukuro');
 
+  // 音声認識が終了したときに `text` を `inputText` に反映する
+  useEffect(() => {
+    if (!isRecording && text) {
+      setInputText(text);
+    }
+    return console.log(text);
+  }, [isRecording, text]);
+
   const handleMicClick = () => {
-    setIsListening(!isListening);
+    setIsRecording((prev) => !prev);
   };
 
   const handlePencilClick = () => {
@@ -22,6 +31,7 @@ const MainSpeech = () => {
 
   const handleBlur = () => {
     setIsEditing(false); // 編集を確定し、通常表示に戻す
+    console.log('Final text after editing:', inputText);
   };
 
   return (
@@ -31,23 +41,30 @@ const MainSpeech = () => {
           {/* マイクボタン */}
           <button
             onClick={handleMicClick}
-            className="w-40 h-40 rounded-full bg-gradient-to-r from-sky-400 to-blue-500 flex items-center
-              justify-center mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className={`w-40 h-40 rounded-full flex items-center justify-center mb-4 focus:outline-none
+              ${isRecording ? 'bg-red-500 animate-pulse' : 'bg-gradient-to-r from-sky-400 to-blue-500'}
+              focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
+              transform active:scale-90 transition-transform duration-150`}
           >
-            <Mic className="w-16 h-16 text-white" />
+            {isRecording ? (
+              <Square className="w-16 h-16 text-white" /> // 録音中は停止アイコンを表示
+            ) : (
+              <Mic className="w-16 h-16 text-white" /> // 通常はマイクアイコンを表示
+            )}
           </button>
-          <p className="text-xl text-gray-600 mb-4">Tap to speak</p>
+          <p className="text-xl text-gray-600 mb-4">{isRecording ? 'Recording...' : 'Tap to speak'}</p>
 
-          {/* ワードの編集 */}
-          {/* todo: 音声認識したワードを動的に表示、音声認識した言語を表示する */}
+          {/* 動的なテキスト表示 */}
           <div className="flex justify-between border rounded-lg w-full p-5">
-            {isEditing ? (
+            {isRecording ? (
+              <p className="text-lg text-gray-800">{transcript}</p>
+            ) : isEditing ? (
               <input
                 type="text"
                 value={inputText}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
-                className="text-gray-800 w-full p-2 border border-gray-300 rounded-md focus:outline-none"
+                className="text-gray-800 w-full p-2 border border-gray-300 rounded-md focus:outline-none overflow-x-auto text-overflow-ellipsis whitespace-nowrap"
                 autoFocus
               />
             ) : (
