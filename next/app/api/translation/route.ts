@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-import OpenAIService from '@/app/libs/openai/OpenAIService';
+import DeepLService from 'app/libs/apiService/DeepLService';
 
 export type TranslateParams = {
-  content: string;
+  text: string;
 };
 
 export type TranslateResponse = {
-  words: string[] | null;
+  text: string;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<TranslateResponse>> {
   const params: TranslateParams = await req.json();
-  console.log('params: ', params);
 
-  const result = await OpenAIService.Ask(params.content);
+  const result = await DeepLService.TranslatorText(params.text, 'EN');
   return NextResponse.json({
-    words: result,
+    text: result,
   });
 }
