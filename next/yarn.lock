@@ -73,6 +73,13 @@
   dependencies:
     csstype "3.1.1"
 
+"@clerk/types@^4.30.0":
+  version "4.30.0"
+  resolved "https://registry.yarnpkg.com/@clerk/types/-/types-4.30.0.tgz#9be1f04b3f55d580153611f6f13cb19896e207e2"
+  integrity sha512-/RLWXsz4yp9uFvJhDZDyZGRDyx3VdHRyPYQS7onhGVTY846X6iCzJVlMFzdpzW3PITxMBgCI9MjgKdH50vBPBA==
+  dependencies:
+    csstype "3.1.1"
+
 "@csstools/css-parser-algorithms@^3.0.1":
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/@csstools/css-parser-algorithms/-/css-parser-algorithms-3.0.4.tgz#74426e93bd1c4dcab3e441f5cc7ba4fb35d94356"
