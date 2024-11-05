@@ -5,16 +5,16 @@ export default class OpenAIService {
     apiKey: `${process.env.OPENAI_API_KEY}`,
   });
 
-  public static async Ask(content: string): Promise<string[] | null> {
+  public static async Ask(content: string): Promise<string[]> {
     const completion = await this.openai.chat.completions.create({
       messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
       model: 'gpt-4o-mini',
     });
     const answer = completion.choices[0].message?.content;
-    if (answer != null) {
-      return this.createWordsArray(answer);
+    if (answer == null) {
+      throw new Error('ChatGPT Response not incloud answer');
     }
-    return null;
+    return this.createWordsArray(answer);
   }
 
   // TODO プロンプトの改良
@@ -33,8 +33,7 @@ ${content}
   }
 
   private static createWordsArray(answer: string): string[] {
-    // 日本語(漢字, ひらがな, 全角カタカナ, 半角英数字)を抽出してstring配列にする
-    const wordArray = answer.split('^[a-zA-Z0-9ぁ-んァ-ヶー\u30a0-\u30ff\u3040-\u309f\u3005-\u3006\u30e0-\u9fcf]*$');
-    return wordArray;
+    const wordsArray = answer.split(',');
+    return wordsArray;
   }
 }

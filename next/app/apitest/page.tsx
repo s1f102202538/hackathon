@@ -8,7 +8,7 @@ const testGetWords = async () => {
   const data: GetWordsParams = { content: 'I want to go to Ikebukuro' };
   try {
     const response: AxiosResponse<GetWordsResponse> = await axios.post('/api/get-words', data);
-    console.log(response);
+    console.log(response.data.wordsArray);
   } catch (error) {
     console.log(error);
   }
