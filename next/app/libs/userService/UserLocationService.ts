@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import UserService from './userService/UserService';
+import UserService from './UserService';
 
 export default class LocationService {
   private static readonly prisma = new PrismaClient();

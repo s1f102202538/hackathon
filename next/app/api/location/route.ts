@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 
-import LocationService from 'app/libs/LocationService';
+import LocationService from 'app/libs/userService/UserLocationService';
 
 export type LocationParams = {
   clientId: string;
