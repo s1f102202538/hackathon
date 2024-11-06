@@ -16,4 +16,21 @@ export default class UserWordsService {
       },
     });
   }
+
+  public static async GetWordsList(clientId: string): Promise<Word[]> {
+    const user = await UserService.FindUserByClientId(clientId);
+
+    const data = await this.prisma.word.findMany({
+      where: { userId: user.id },
+    });
+
+    const words: Word[] = data.map((word) => {
+      return {
+        ja: word.ja,
+        en: word.en,
+      };
+    });
+
+    return words;
+  }
 }
