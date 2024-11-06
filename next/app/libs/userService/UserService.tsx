@@ -11,4 +11,16 @@ export default class UserService {
     });
     return user;
   }
+
+  public static async FindUserByClientId(clientId: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { clientId },
+    });
+
+    if (user == null) {
+      throw new Error('User not found');
+    }
+
+    return user;
+  }
 }
