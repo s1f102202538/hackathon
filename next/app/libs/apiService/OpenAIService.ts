@@ -11,7 +11,7 @@ export default class OpenAIService {
       model: 'gpt-4o-mini',
     });
     const answer = completion.choices[0].message?.content;
-    if (answer == null) {
+    if (answer === null) {
       throw new Error('ChatGPT Response not incloud answer');
     }
     return this.createWordsArray(answer);

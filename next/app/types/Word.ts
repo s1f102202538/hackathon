@@ -1,4 +1,4 @@
 export type Word = {
-  jp: string;
+  ja: string;
   en: string;
 };
