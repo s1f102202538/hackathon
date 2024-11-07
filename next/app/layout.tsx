@@ -1,18 +1,34 @@
+// next/app/layout.tsx
+import dynamic from 'next/dynamic';
 import type { Metadata } from 'next';
-import { ClerkProvider } from '@clerk/nextjs';
 import './styles/globals.css';
+import ClientProvider from './components/ClientProvider';
 
 export const metadata: Metadata = {
   title: 'Next App',
   description: 'Next App Description',
 };
 
-const RootLayout = ({ children }: Readonly<{ children: React.ReactNode }>) => (
-  <ClerkProvider>
-    <html lang="en">
-      <body>{children}</body>
+// ClerkProvider を動的インポートし、サーバーサイドレンダリングを無効化
+const ClerkProvider = dynamic(() => import('@clerk/nextjs').then((mod) => mod.ClerkProvider), {
+  ssr: false,
+});
+
+type Props = {
+  children: React.ReactNode;
+};
+
+const RootLayout = ({ children }: Props) => {
+  return (
+    <html lang="ja">
+      <body>
+        <ClerkProvider>
+          <ClientProvider />
+          {children}
+        </ClerkProvider>
+      </body>
     </html>
-  </ClerkProvider>
-);
+  );
+};
 
 export default RootLayout;

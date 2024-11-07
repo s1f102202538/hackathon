@@ -1,6 +1,6 @@
 import React from 'react';
 import Navbar from './components/layout/navbar/page';
-import Map from './components/ui/map/document';
+import Map from './map/components/Map';
 
 const Home = () => (
   <div>
