@@ -8,7 +8,7 @@ export type GetLocationListParams = {
 };
 
 export type GetLocationListResponse = {
-  locationList: Location[];
+  locationList: Location[] | null;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<GetLocationListResponse>> {
