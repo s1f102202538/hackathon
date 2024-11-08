@@ -236,13 +236,13 @@
     "@babel/helper-string-parser" "^7.25.9"
     "@babel/helper-validator-identifier" "^7.25.9"
 
-"@clerk/backend@1.15.7":
-  version "1.15.7"
+"@clerk/backend@1.15.5":
+  version "1.15.5"
   resolved "https://registry.yarnpkg.com/@clerk/backend/-/backend-1.15.7.tgz#2aa2f3f0c0e63fa5dce86152551ab6a23d7d48cd"
   integrity sha512-srJZE3fMY9cHgTsFpO5rxFJmX30GMMplML7M8hvP58y5s4D+8OgqJmAPK3FsqME4ABp9rIXmDCbxMZav9DhP2g==
   dependencies:
-    "@clerk/shared" "2.11.5"
-    "@clerk/types" "4.30.0"
+    "@clerk/shared" "2.11.3"
+    "@clerk/types" "4.29.0"
     cookie "0.7.0"
     snakecase-keys "5.4.4"
     tslib "2.4.1"
@@ -250,7 +250,7 @@
 "@clerk/clerk-react@5.15.1":
   version "5.15.1"
   resolved "https://registry.yarnpkg.com/@clerk/clerk-react/-/clerk-react-5.15.1.tgz#3e8e1fd8918d9e11867cd5b297e9fc5172be1fa7"
-  integrity sha512-p6PLh6SBREEknCzi4I2pyYXRy0OLS7bJ4X9flW1877evYJgyJuirBf8j/RTWg5YzCbVx+GPiZhdlZSCNzH+5Cg==
+  integrity sgwWNm96IRQCIVmlJpm0Hr09GqK9jP19ko3AZUINuFxfqX+U3o26G7vwUoAGDxeSxvcb7LzxoAVAXBZZFsDzyw==
   dependencies:
     "@clerk/shared" "2.11.5"
     "@clerk/types" "4.30.0"
