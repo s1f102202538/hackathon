@@ -1,14 +1,12 @@
 import { Volume2 } from 'lucide-react';
-import { toRomaji } from 'wanakana';
 
 type TranslationCardProps = {
   mean: string;
   ja: string;
+  romaji: string;
 };
 
-const TranslationCard = ({ mean, ja }: TranslationCardProps) => {
-  const roman = toRomaji(ja);
-
+const TranslationCard = ({ mean, ja, romaji }: TranslationCardProps) => {
   const speakText = (text: string) => {
     if ('speechSynthesis' in window) {
       const utterance = new SpeechSynthesisUtterance(text);
@@ -24,7 +22,7 @@ const TranslationCard = ({ mean, ja }: TranslationCardProps) => {
       <div className="text-b">
         <p className="text-black/50">{mean}</p>
         <div className="flex justify-between">
-          <p className="text-lg text-gray-800">{roman}</p>
+          <p className="text-lg text-gray-800">{romaji}</p>
           <Volume2 className="text-sky-500 hover:text-sky-700" />
         </div>
         <p className="text-sky-500">{ja}</p>
