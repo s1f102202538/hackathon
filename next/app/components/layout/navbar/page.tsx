@@ -13,18 +13,18 @@ const Navbar = () => {
         {/* リストリンク */}
         <Link
           href="/word-lists"
-          className={`flex flex-col items-center p-2 text-gray-600 transition-colors duration-200 hover:text-sky-500${
-            pathname === '/word-lists' ? 'text-sky-500' : ''
+          className={`flex flex-col items-center p-2 text-gray-600 transition-colors duration-200 hover:text-sky-500 ${
+            pathname.startsWith('/word-lists') ? 'text-sky-500' : ''
           }`}
         >
           <List className="w-6 h-6" />
         </Link>
 
-        {/* マイリンク */}
+        {/* スピークリンク */}
         <Link
           href="/speak"
-          className={`flex flex-col items-center p-2 text-gray-600 transition-colors duration-200 hover:text-sky-500${
-            pathname === '/speak' ? 'text-sky-500' : ''
+          className={`flex flex-col items-center p-2 text-gray-600 transition-colors duration-200 hover:text-sky-500 ${
+            pathname.startsWith('/speak') ? 'text-sky-500' : ''
           }`}
         >
           <Mic className="w-6 h-6" />
@@ -33,8 +33,8 @@ const Navbar = () => {
         {/* マップリンク */}
         <Link
           href="/map"
-          className={`flex flex-col items-center p-2 text-gray-600 transition-colors duration-200 hover:text-sky-500${
-            pathname === '/map' ? 'text-sky-500' : ''
+          className={`flex flex-col items-center p-2 text-gray-600 transition-colors duration-200 hover:text-sky-500 ${
+            pathname.startsWith('/map') ? 'text-sky-500' : ''
           }`}
         >
           <MapPinCheckInside className="w-6 h-6" />
