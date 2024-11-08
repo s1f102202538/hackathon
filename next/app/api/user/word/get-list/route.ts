@@ -8,7 +8,7 @@ export type GetWordsListParams = {
 };
 
 export type GetWordsListResponse = {
-  wordsList: Word[];
+  wordsList: Word[] | null;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<GetWordsListResponse>> {
