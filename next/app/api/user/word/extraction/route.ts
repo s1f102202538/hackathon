@@ -11,24 +11,27 @@ export type ExtractionWordsParams = {
 };
 
 export type ExtractionWordsResponse = {
-  wordsList: Word[];
+  wordsList: Word[] | null;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWordsResponse>> {
-  const params: ExtractionWordsParams = await req.json();
+  try {
+    const params: ExtractionWordsParams = await req.json();
 
-  const jp = await OpenAIService.Ask(params.content);
-  const en = await DeepLService.TranslatorWordsArray(jp, 'EN');
-  const wordsList: Word[] = [];
-  for (let i = 0; i < jp.length; i++) {
-    const word: Word = {
-      ja: jp[i],
-      en: en[i],
-    };
-    UserWordsService.Create(params.clientId, word);
-    wordsList.push(word);
+    const jp = await OpenAIService.Ask(params.content);
+    const en = await DeepLService.TranslatorWordsArray(jp, 'EN');
+    const wordsList: Word[] = [];
+    for (let i = 0; i < jp.length; i++) {
+      const word: Word = {
+        ja: jp[i],
+        en: en[i],
+      };
+      UserWordsService.Create(params.clientId, word);
+      wordsList.push(word);
+    }
+    return NextResponse.json({ wordsList }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected Error in POST /api/user/word/extraction:', error);
+    return NextResponse.json({ wordsList: null }, { status: 500 });
   }
-  return NextResponse.json({
-    wordsList,
-  });
 }
