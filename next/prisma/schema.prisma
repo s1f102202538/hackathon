@@ -28,6 +28,7 @@ model Word {
   User      User     @relation(fields: [userId], references: [id])
   ja        String
   en        String
+  romaji    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
