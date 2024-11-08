@@ -7,14 +7,14 @@ export default class UserWordsService {
     const user = await UserService.FindUserByClientId(clientId);
 
     if (user !== null) {
-      const duplicate = prisma.word.findFirst({
+      const duplicate = await prisma.word.findFirst({
         where: { userId: user.id, ja: word.ja },
       });
       if (duplicate !== null) {
         return;
       }
 
-      prisma.word.create({
+      await prisma.word.create({
         data: {
           userId: user.id,
           ja: word.ja,
