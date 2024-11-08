@@ -13,7 +13,7 @@ export default class DeepLService {
     return response.data.translations[0].text;
   }
 
-  public static async TranslatorWordsArray(textArray: string[], target: DeeplLanguages): Promise<string[]> {
+  public static async TranslatorTextArray(textArray: string[], target: DeeplLanguages): Promise<string[]> {
     const joinText = textArray.join(',');
     const response = await translate({
       free_api: true,
@@ -25,8 +25,7 @@ export default class DeepLService {
   }
 
   private static createTranslateWordsArray(translateText: string): string[] {
-    // 半角英数字のみを抽出
-    const wordArray = translateText.split('^[a-zA-Z0-9]*$');
-    return wordArray;
+    const wordsArray = translateText.split(',');
+    return wordsArray;
   }
 }

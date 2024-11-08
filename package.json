@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "@clerk/nextjs": "^6.2.0",
+    "@googlemaps/js-api-loader": "^1.16.8",
+    "@types/google.maps": "^3.58.1",
+    "@types/googlemaps": "^3.43.3",
+    "leaflet": "^1.9.4",
+    "lucide-react": "^0.454.0",
+    "mapbox-gl": "^3.7.0",
+    "react-leaflet": "^4.2.1"
+  }
+}

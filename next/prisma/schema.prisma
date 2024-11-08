@@ -12,3 +12,34 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id            String          @id @default(cuid())
+  clientId      String          @unique
+  words         Word[]
+  wordLocations WordsLocation[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+}
+
+model Word {
+  id        Int      @id @default(autoincrement())
+  userId    String
+  User      User     @relation(fields: [userId], references: [id])
+  ja        String
+  en        String
+  romaji    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WordsLocation {
+  id       Int      @id @default(autoincrement())
+  userId   String
+  User     User     @relation(fields: [userId], references: [id])
+  words    String
+  lat      String
+  lon      String
+  createAt DateTime @default(now())
+  updateAt DateTime @updatedAt
+}
