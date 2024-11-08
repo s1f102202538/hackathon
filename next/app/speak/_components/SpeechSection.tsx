@@ -41,7 +41,7 @@ const SpeechSection: React.FC<SpeechSectionProps> = ({
   };
 
   return (
-    <div className="bg-white">
+    <div>
       {/* セクションヘッダー */}
       <div className="bg-gradient-to-r from-sky-100 to-blue-100 p-2 rounded-t-xl">
         <div className="flex justify-between items-center">
