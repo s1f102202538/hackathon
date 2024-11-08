@@ -11,7 +11,11 @@ export type LocationParams = {
 };
 
 export async function POST(req: NextRequest): Promise<void> {
-  const params: LocationParams = await req.json();
+  try {
+    const params: LocationParams = await req.json();
 
-  UserWordsLocationService.Create(params.clientId, params.words, params.lat, params.lon);
+    UserWordsLocationService.Create(params.clientId, params.words, params.lat, params.lon);
+  } catch (error) {
+    console.error('Unexpected Error in POST /api/user/words-location/save:', error);
+  }
 }

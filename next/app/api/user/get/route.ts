@@ -11,10 +11,13 @@ export type GetUserResponse = {
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<GetUserResponse>> {
-  const params: GetUserParams = await req.json();
-  const user = await UserService.FindUserByClientId(params.clientId);
+  try {
+    const params: GetUserParams = await req.json();
+    const user = await UserService.FindUserByClientId(params.clientId);
 
-  return NextResponse.json({
-    user,
-  });
+    return NextResponse.json({ user }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected Error in POST /api/user/get:', error);
+    return NextResponse.json({ user: null }, { status: 500 });
+  }
 }

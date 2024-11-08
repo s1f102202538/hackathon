@@ -1,5 +1,6 @@
 import prisma from 'prisma/client';
 import { User } from '@prisma/client';
+import { ErrorWithtatusCode } from 'app/types/CustomExceptions';
 
 export default class UserService {
   /**
@@ -28,7 +29,7 @@ export default class UserService {
     const existingUser = await this.FindUserByClientId(clientId);
 
     if (existingUser !== null) {
-      throw new Error('UserService: User has already been created');
+      throw new ErrorWithtatusCode('UserService: User has already been created', 400);
     }
 
     const newUser = await prisma.user.create({
