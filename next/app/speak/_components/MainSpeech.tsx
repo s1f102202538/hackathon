@@ -8,11 +8,7 @@ import TranslationCard from './TranslationCard';
 import SpeechSection from './SpeechSection';
 import { useAuth } from '@clerk/nextjs';
 
-type Words = {
-  ja: string;
-  en: string;
-  romaji: string;
-};
+import { Word } from 'app/types/Word';
 
 const MainSpeech = () => {
   // 観光客用の音声認識フック
@@ -23,7 +19,7 @@ const MainSpeech = () => {
   // 観光客用の状態
   const [isEditing, setIsEditing] = useState(false);
   const [inputText, setInputText] = useState('Where is the Hachikoumae');
-  const [wordsArray, setWordsArray] = useState<Words[]>([]);
+  const [wordsArray, setWordsArray] = useState<Word[]>([]);
 
   // 日本人用の状態
   const [isEditingJ, setIsEditingJ] = useState(false);
@@ -64,7 +60,7 @@ const MainSpeech = () => {
         content: inputText, // 録音したテキストを送信
       });
 
-      const cleanedWordsArray = response.data.wordsList.map((word: Words) => ({
+      const cleanedWordsArray = response.data.wordsList.map((word: Word) => ({
         ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
         en: word.en.replace(/"/g, ''),
         romaji: word.romaji.replace(/"/g, ''),
