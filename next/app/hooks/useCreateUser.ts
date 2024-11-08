@@ -12,8 +12,22 @@ const useCreateUser = () => {
     const createUser = async () => {
       if (isSignedIn && userId) {
         try {
+<<<<<<< Updated upstream
           await axios.post('/api/user/create', { clientId: userId });
           console.log('User created or already exists');
+=======
+          // ユーザーの存在確認
+          const getResponse = await axios.post('/api/user/get', { clientId: userId });
+          const { user } = getResponse.data;
+
+          if (!user) {
+            // ユーザーが存在しない場合、新規作成
+            await axios.post('/api/user/create', { clientId: userId });
+            console.log('User created');
+          } else {
+            console.log('User already exists');
+          }
+>>>>>>> Stashed changes
         } catch (error: unknown) {
           if (axios.isAxiosError(error)) {
             if (error.response && error.response.status === 400) {
