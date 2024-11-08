@@ -1,14 +1,6 @@
 'use client';
 
 import useCreateUser from '../hooks/useCreateUser';
-<<<<<<< Updated upstream
-
-const ClientProvider = () => {
-  useCreateUser();
-  return null; // このコンポーネントはUIを返さない
-};
-
-=======
 import { useAuth } from '@clerk/nextjs';
 
 const ClientProvider = () => {
@@ -19,5 +11,4 @@ const ClientProvider = () => {
   return null; // このコンポーネントはUIを返さない
 };
 
->>>>>>> Stashed changes
 export default ClientProvider;
