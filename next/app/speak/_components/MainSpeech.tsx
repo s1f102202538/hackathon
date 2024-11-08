@@ -11,6 +11,7 @@ import { useAuth } from '@clerk/nextjs';
 type Words = {
   ja: string;
   en: string;
+  romaji: string;
 };
 
 const MainSpeech = () => {
@@ -66,6 +67,7 @@ const MainSpeech = () => {
       const cleanedWordsArray = response.data.wordsList.map((word: Words) => ({
         ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
         en: word.en.replace(/"/g, ''),
+        romaji: word.romaji.replace(/"/g, ''),
       }));
       setWordsArray(cleanedWordsArray);
       console.log(cleanedWordsArray);
@@ -103,6 +105,37 @@ const MainSpeech = () => {
     translateJapanese(inputTextJ);
   }, [translateJapanese, inputTextJ]);
 
+  // 日本人側の録音ボタンのクリックハンドラー
+  const handleRecordingJClick = useCallback(() => {
+    setIsRecordingJ((prev) => !prev);
+
+    if (!isRecordingJ) {
+      // 録音開始時の処理
+    } else {
+      // 録音停止時の処理
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+
+          try {
+            await axios.post('/api/user/words-location/save', {
+              clientId: userId,
+              words: wordsArray,
+              lat: latitude.toString(),
+              lon: longitude.toString(),
+            });
+            console.log('データの保存に成功しました');
+          } catch (error) {
+            console.error('データの保存中にエラーが発生しました:', error);
+          }
+        },
+        (error) => {
+          console.error('位置情報の取得に失敗しました:', error);
+        }
+      );
+    }
+  }, [isRecordingJ, userId, wordsArray, setIsRecordingJ]);
+
   return (
     <div className="flex flex-col space-y-4 p-4">
       {/* Tourist セクション */}
@@ -120,7 +153,7 @@ const MainSpeech = () => {
         {/* TranslationCardsの表示 */}
         <div className="grid grid-cols-2 gap-2">
           {wordsArray.map((word, index) => (
-            <TranslationCard key={index} mean={word.en} ja={word.ja} />
+            <TranslationCard key={index} mean={word.en} ja={word.ja} romaji={word.romaji} />
           ))}
         </div>
       </SpeechSection>
@@ -129,7 +162,7 @@ const MainSpeech = () => {
       <SpeechSection
         title="Japanese"
         isRecording={isRecordingJ}
-        toggleRecording={() => setIsRecordingJ((prev) => !prev)}
+        toggleRecording={handleRecordingJClick}
         transcript={transcriptJ}
         isEditing={isEditingJ}
         toggleEditing={() => setIsEditingJ((prev) => !prev)}
