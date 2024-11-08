@@ -1,13 +1,11 @@
 import { X, MapPin } from 'lucide-react';
 import { useRef, useEffect } from 'react';
+import { Word } from 'app/types/Word';
+// import { useRouter } from 'next/router';
+import Link from 'next/link';
 
 interface WordDetailProps {
-  word: {
-    japanese: string;
-    romaji: string;
-    english: string;
-    usageCount: number;
-  };
+  word: Word;
   onClose: () => void;
 }
 
@@ -41,15 +39,17 @@ const WordDetail = ({ word, onClose }: WordDetailProps) => {
           <X className="h-5 w-5" />
         </button>
         <div className="text-center">
-          <p className="text-lg text-gray-500 mb-2">{word.romaji}</p>
-          <h2 className="text-4xl mb-3 font-bold text-gray-800">{word.japanese}</h2>
-          <p className="text-2xl text-cyan-600 mb-6">{word.english}</p>
-          <button className="w-full mb-4 py-3 px-4 text-lg rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 text-white font-medium shadow-md">
-            <MapPin className="inline-block mr-2 h-5 w-5" />
-            Check map
-          </button>
+          <p className="text-lg text-gray-500 mb-2">{word.romaji.replace(/"/g, '')}</p>
+          <h2 className="text-4xl mb-3 font-bold text-gray-800">{word.ja.replace(/"/g, '')}</h2>
+          <p className="text-2xl text-cyan-600 mb-6">{word.en.replace(/"/g, '')}</p>
+          <Link href="/map">
+            <button className="w-full mb-4 py-3 px-4 text-lg rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 text-white font-medium shadow-md">
+              <MapPin className="inline-block mr-2 h-5 w-5" />
+              Check map
+            </button>
+          </Link>
           <span className="inline-block text-lg px-4 py-2 rounded-full bg-cyan-100 text-cyan-800 font-medium">
-            Used: {word.usageCount}
+            Used: 10
           </span>
         </div>
       </div>

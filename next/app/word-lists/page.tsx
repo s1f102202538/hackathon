@@ -93,13 +93,7 @@ import WordCard from './_components/WordCard';
 import WordDetail from './_components/WordDetail';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
-
-type Word = {
-  japanese: string;
-  romaji: string;
-  english: string;
-  usageCount: number;
-};
+import { Word } from 'app/types/Word';
 
 const WordLists = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -126,8 +120,8 @@ const WordLists = () => {
 
   const filteredWords = words.filter(
     (word) =>
-      word.japanese.includes(searchQuery) ||
-      word.english.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      word.ja.includes(searchQuery) ||
+      word.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
       word.romaji.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -137,7 +131,7 @@ const WordLists = () => {
       <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <div className="flex-1 overflow-auto px-4 pb-24">
         {filteredWords.map((word) => (
-          <WordCard key={word.japanese} word={word} onSelect={() => setSelectedWord(word)} />
+          <WordCard key={word.ja} word={word} onSelect={() => setSelectedWord(word)} />
         ))}
       </div>
       <Navbar />
