@@ -9,7 +9,7 @@ export default class UserWordsLocationService {
     const user = await UserService.FindUserByClientId(clientId);
 
     if (user !== null) {
-      prisma.wordsLocation.create({
+      await prisma.wordsLocation.create({
         data: {
           userId: user.id,
           words: JSON.stringify(words),
