@@ -19,6 +19,7 @@ export default class UserWordsService {
           userId: user.id,
           ja: word.ja,
           en: word.en,
+          romaji: word.romaji,
         },
       });
     }
@@ -36,6 +37,7 @@ export default class UserWordsService {
         return {
           ja: word.ja,
           en: word.en,
+          romaji: word.romaji,
         };
       });
 

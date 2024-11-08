@@ -13,7 +13,7 @@ export default class DeepLService {
     return response.data.translations[0].text;
   }
 
-  public static async TranslatorWordsArray(textArray: string[], target: DeeplLanguages): Promise<string[]> {
+  public static async TranslatorTextArray(textArray: string[], target: DeeplLanguages): Promise<string[]> {
     const joinText = textArray.join(',');
     const response = await translate({
       free_api: true,

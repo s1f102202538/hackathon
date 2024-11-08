@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAIService from 'app/libs/apiService/OpenAIService';
 import DeepLService from 'app/libs/apiService/DeepLService';
 import UserWordsService from 'app/libs/userService/UserWordsService';
+import WanakanaService from 'app/libs/WanakanaService';
 import { Word } from 'app/types/Word';
 
 export type ExtractionWordsParams = {
@@ -19,12 +20,14 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const params: ExtractionWordsParams = await req.json();
 
     const jp = await OpenAIService.Ask(params.content);
-    const en = await DeepLService.TranslatorWordsArray(jp, 'EN');
+    const en = await DeepLService.TranslatorTextArray(jp, 'EN');
+    const romaji = await WanakanaService.TextArrayToRomaji(jp);
     const wordsList: Word[] = [];
     for (let i = 0; i < jp.length; i++) {
       const word: Word = {
         ja: jp[i],
         en: en[i],
+        romaji: romaji[i],
       };
       UserWordsService.Create(params.clientId, word);
       wordsList.push(word);
