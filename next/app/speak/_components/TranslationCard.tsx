@@ -20,9 +20,9 @@ const TranslationCard = ({ mean, ja }: TranslationCardProps) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-4 hover:bg-sky-400" onClick={() => speakText(ja)}>
+    <div className="bg-white rounded-xl shadow p-4 mt-2 hover:bg-sky-400" onClick={() => speakText(ja)}>
       <div className="text-b">
-        <p className="text-grey-700">{mean}</p>
+        <p className="text-black/50">{mean}</p>
         <div className="flex justify-between">
           <p className="text-lg text-gray-800">{roman}</p>
           <Volume2 className="text-sky-500 hover:text-sky-700" />

@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 
-export function useSpeechRecognition() {
-  const [isRecording, setIsRecording] = useState(false);
-  const [text, setText] = useState<string>('');
-  const [transcript, setTranscript] = useState<string>('');
+export function useJaSpeechRecognition() {
+  const [isRecordingJ, setIsRecordingJ] = useState(false);
+  const [textJ, setText] = useState<string>('');
+  const [transcriptJ, setTranscript] = useState<string>('');
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const recognitionInstance = new webkitSpeechRecognition();
       // 要検討
-      recognitionInstance.lang = 'en-US';
+      recognitionInstance.lang = 'ja-JP';
       recognitionInstance.continuous = true;
       recognitionInstance.interimResults = true;
       setRecognition(recognitionInstance);
@@ -19,13 +19,13 @@ export function useSpeechRecognition() {
 
   useEffect(() => {
     if (!recognition) return;
-    if (isRecording) {
+    if (isRecordingJ) {
       recognition.start();
     } else {
       recognition.stop();
       setText('');
     }
-  }, [isRecording]);
+  }, [isRecordingJ]);
 
   useEffect(() => {
     if (!recognition) return;
@@ -42,5 +42,5 @@ export function useSpeechRecognition() {
     };
   }, [recognition]);
 
-  return { isRecording, setIsRecording, text, transcript };
+  return { isRecordingJ, setIsRecordingJ, textJ, transcriptJ };
 }
