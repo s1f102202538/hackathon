@@ -114,13 +114,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
         if (!mapRef.current) {
           // マップを初期化
-          mapRef.current = new google.maps.Map(
-            document.getElementById('map') as HTMLElement,
-            {
-              center: coordinates[0] || { lat: 0, lng: 0 },
-              zoom: 5,
-            }
-          );
+          mapRef.current = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+            center: coordinates[0] || { lat: 0, lng: 0 },
+            zoom: 5,
+          });
         }
 
         // 既存のマーカーを削除
@@ -142,14 +139,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             // 既存の InfoWindow を閉じる
             if (infoWindowRef.current) {
-              (infoWindowRef.current as any).close();
+              // (infoWindowRef.current as any).close();
+              close();
             }
 
             // 新しい CustomInfoWindow を作成
-            infoWindowRef.current = new CustomInfoWindow(
-              marker.getPosition()!,
-              `<div>${coord.title.join(', ')}</div>`
-            );
+            infoWindowRef.current = new CustomInfoWindow(marker.getPosition()!, `<div>${coord.title.join(', ')}</div>`);
 
             infoWindowRef.current.setMap(mapRef.current!);
           });
