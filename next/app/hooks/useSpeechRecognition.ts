@@ -10,7 +10,7 @@ export function useSpeechRecognition() {
     if (typeof window !== 'undefined') {
       const recognitionInstance = new webkitSpeechRecognition();
       // 要検討
-      recognitionInstance.lang = 'ja-JP';
+      recognitionInstance.lang = 'en-US';
       recognitionInstance.continuous = true;
       recognitionInstance.interimResults = true;
       setRecognition(recognitionInstance);
