@@ -1,5 +1,5 @@
 import { PlayCircle } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card } from 'app/components/ui/card';
 import { Word } from 'app/types/Word';
 interface WordCardProps {
   word: Word;
