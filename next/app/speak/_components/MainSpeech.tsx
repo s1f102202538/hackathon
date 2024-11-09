@@ -149,7 +149,7 @@ const MainSpeech = () => {
         {/* TranslationCardsの表示 */}
         <div className="grid grid-cols-2 gap-2">
           {wordsArray.map((word, index) => (
-            <TranslationCard key={index} mean={word.en} ja={word.ja} romaji={word.romaji} />
+            <TranslationCard key={index} word={word} />
           ))}
         </div>
       </SpeechSection>
