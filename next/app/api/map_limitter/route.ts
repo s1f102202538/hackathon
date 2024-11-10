@@ -9,7 +9,7 @@ function readLog() {
   try {
     const data = fs.readFileSync(LOG_FILE, 'utf-8');
     return JSON.parse(data);
-  } catch  {
+  } catch {
     // ファイルが存在しない、またはJSONエラーが発生した場合、初期状態を返す
     return { date: new Date().toISOString().split('T')[0], count: 0 };
   }
@@ -29,10 +29,7 @@ export async function GET() {
       writeLog(today, log.count + 1);
       return NextResponse.json({ allowed: true });
     } else {
-      return NextResponse.json(
-        { allowed: false, message: 'API呼び出し件数が上限に達しました。' },
-        { status: 429 }
-      );
+      return NextResponse.json({ allowed: false, message: 'API呼び出し件数が上限に達しました。' }, { status: 429 });
     }
   } else {
     // 日付が異なる場合、新しい日付でカウントをリセット
