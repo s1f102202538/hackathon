@@ -1,0 +1,48 @@
+name: next-ci
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "next/**"
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: next
+
+jobs:
+  next-lint-check:
+    runs-on: ubuntu-latest
+    strategy:
+    matrix:
+      node-version: [20.18.0]
+
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: "yarn"
+          cache-dependency-path: ./next/yarn.lock
+
+      - name: Get chenged ts/tsx files
+        id: get_changed_files
+        run: |
+          echo "::set-output name=files::$(git diff --name-only ${{ github.base_ref }} ${{ github.head_ref }} | grep '\.ts[x]?$')"
+
+      - name: Run ESLint Reviewdog
+        uses: reviewdog/action-eslint@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          eslint_flags: "${{ steps.get_changed_files.outputs.files }}"
+          workdir: next/
