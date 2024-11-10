@@ -16,8 +16,8 @@ jobs:
   next-lint-check:
     runs-on: ubuntu-latest
     strategy:
-    matrix:
-      node-version: [20.18.0]
+      matrix:
+        node-version: [20.18.0]
 
     permissions:
       contents: read
