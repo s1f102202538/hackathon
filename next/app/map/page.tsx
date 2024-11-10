@@ -40,19 +40,19 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div style={{backgroundColor: '#F0F8FF' }}>
+    <div style={{ backgroundColor: '#F0F8FF' }}>
       <Header title="Word Map" />
       <div style={{ marginTop: '20px', marginBottom: '20px' }}>
         <WordSearchInput placeholder="おはよう" onSearch={handleSearch} />
       </div>
       <WordUsageStats />
-      <div style={{ marginBottom: '80px',}}>
+      <div style={{ marginBottom: '80px' }}>
         <MapComponent
           coordinates={coordinates}
           iconPath={iconPath}
           selectedIconPath={selectedIconPath}
           searchTerm={searchTerm} // searchTerm をプロパティとして渡す
-          searchKey={searchKey}   // searchKey をプロパティとして渡す
+          searchKey={searchKey} // searchKey をプロパティとして渡す
         />
       </div>
       <Navbar />

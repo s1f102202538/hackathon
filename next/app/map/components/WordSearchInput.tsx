@@ -26,7 +26,7 @@ const WordSearchInput: React.FC<WordSearchInputProps> = ({ placeholder, onSearch
           padding: '10px',
           borderRadius: '5px',
           border: '1px solid #CCC',
-          fontSize: '16px'
+          fontSize: '16px',
         }}
       />
       <button
@@ -47,7 +47,7 @@ const WordSearchInput: React.FC<WordSearchInputProps> = ({ placeholder, onSearch
           ...(window.innerWidth <= 480 && {
             width: '20%',
             fontSize: '15px',
-            marginLeft: '5px'
+            marginLeft: '5px',
           }),
         }}
       >
