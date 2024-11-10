@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import UserWordsService from 'app/libs/userService/UserWordsService';
-import { Word } from 'app/types/Word';
+import { WordWithCount } from 'app/types/Word';
 
 export type GetWordsListParams = {
   clientId: string;
 };
 
 export type GetWordsListResponse = {
-  wordsList: Word[] | null;
+  wordsList: WordWithCount[] | null;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<GetWordsListResponse>> {

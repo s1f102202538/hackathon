@@ -8,12 +8,12 @@ import WordCard from './_components/WordCard';
 import WordDetail from './_components/WordDetail';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
-import { Word } from 'app/types/Word';
+import { WordWithCount } from 'app/types/Word';
 
 const WordLists = () => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedWord, setSelectedWord] = useState<Word | null>(null);
-  const [words, setWords] = useState<Word[]>([]);
+  const [selectedWord, setSelectedWord] = useState<WordWithCount | null>(null);
+  const [words, setWords] = useState<WordWithCount[]>([]);
   const { userId, isSignedIn } = useAuth();
 
   useEffect(() => {
@@ -34,10 +34,10 @@ const WordLists = () => {
   }, [isSignedIn, userId]);
 
   const filteredWords = words.filter(
-    (word) =>
-      word.ja.includes(searchQuery) ||
-      word.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      word.romaji.toLowerCase().includes(searchQuery.toLowerCase())
+    (WordWithCount) =>
+      WordWithCount.word.ja.includes(searchQuery) ||
+      WordWithCount.word.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      WordWithCount.word.romaji.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -45,12 +45,16 @@ const WordLists = () => {
       <Header title="Word Lists" />
       <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <div className="flex-1 overflow-auto px-4 pb-24">
-        {filteredWords.map((word) => (
-          <WordCard key={word.ja} word={word} onSelect={() => setSelectedWord(word)} />
+        {filteredWords.map((WordWithCount) => (
+          <WordCard
+            key={WordWithCount.word.ja}
+            wordWithCount={WordWithCount}
+            onSelect={() => setSelectedWord(WordWithCount)}
+          />
         ))}
       </div>
       <Navbar />
-      {selectedWord && <WordDetail word={selectedWord} onClose={() => setSelectedWord(null)} />}
+      {selectedWord && <WordDetail wordWithCount={selectedWord} onClose={() => setSelectedWord(null)} />}
     </div>
   );
 };

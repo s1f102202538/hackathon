@@ -1,6 +1,6 @@
 import prisma from 'prisma/client';
 import UserService from './UserService';
-import { Word } from 'app/types/Word';
+import { Word, WordWithCount } from 'app/types/Word';
 
 export default class UserWordsService {
   public static async Create(clientId: string, word: Word): Promise<void> {
@@ -10,7 +10,16 @@ export default class UserWordsService {
       const duplicate = await prisma.word.findFirst({
         where: { userId: user.id, ja: word.ja },
       });
+
+      // 既にdbにwordが保存されている場合countを増やす
       if (duplicate !== null) {
+        await prisma.word.update({
+          where: { id: duplicate.id },
+          data: {
+            count: duplicate.count++,
+          },
+        });
+
         return;
       }
 
@@ -25,7 +34,7 @@ export default class UserWordsService {
     }
   }
 
-  public static async GetWordsList(clientId: string): Promise<Word[] | null> {
+  public static async GetWordsList(clientId: string): Promise<WordWithCount[] | null> {
     const user = await UserService.FindUserByClientId(clientId);
 
     if (user !== null) {
@@ -33,11 +42,14 @@ export default class UserWordsService {
         where: { userId: user.id },
       });
 
-      const words: Word[] = data.map((word) => {
+      const words = data.map((word) => {
         return {
-          ja: word.ja,
-          en: word.en,
-          romaji: word.romaji,
+          word: {
+            ja: word.ja,
+            en: word.en,
+            romaji: word.romaji,
+          } as Word,
+          count: word.count,
         };
       });
 
