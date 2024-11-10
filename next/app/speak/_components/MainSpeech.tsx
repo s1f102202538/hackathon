@@ -1,7 +1,7 @@
 'use client';
 
 import { useJaSpeechRecognition } from '../../hooks/useJaSpeechRecognition';
-import { useEnSpeechRecognition } from '../../hooks/useEnSpeechRecognition';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import TranslationCard from './TranslationCard';
@@ -11,8 +11,10 @@ import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
 
 const MainSpeech = () => {
+  // 言語選択の状態
+  const [selectedLang, setSelectedLang] = useState('en-US'); // デフォルトは英語
   // 観光客用の音声認識フック
-  const { isRecording, setIsRecording, text, transcript } = useEnSpeechRecognition();
+  const { isRecording, setIsRecording, text, transcript } = useSpeechRecognition(selectedLang);
   // 日本人用の音声認識フック
   const { isRecordingJ, setIsRecordingJ, textJ, transcriptJ } = useJaSpeechRecognition();
 
@@ -134,6 +136,27 @@ const MainSpeech = () => {
 
   return (
     <div className="flex flex-col space-y-4 p-4">
+      <div className="flex flex-col">
+        <label htmlFor="language-select">Select Language: </label>
+        <select
+          className="bg-black/10 hover:bg-sky-500 w-1/3 rounded-md p-1"
+          id="language-select"
+          value={selectedLang}
+          onChange={(e) => setSelectedLang(e.target.value)}
+        >
+          <option value="en-US">英語（米国）</option>
+          <option value="en-GB">英語（英国）</option>
+          <option value="ja-JP">日本語</option>
+          <option value="fr-FR">フランス語</option>
+          <option value="de-DE">ドイツ語</option>
+          <option value="es-ES">スペイン語</option>
+          <option value="zh-CN">中国語（簡体字）</option>
+          <option value="ko-KR">韓国語</option>
+          <option value="it-IT">イタリア語</option>
+          <option value="ru-RU">ロシア語</option>
+        </select>
+      </div>
+
       {/* Tourist セクション */}
       <SpeechSection
         title="You"
