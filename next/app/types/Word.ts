@@ -1,6 +1,6 @@
 export type Word = {
   ja: string;
-  en: string;
+  userLang: string;
   romaji: string;
 };
 

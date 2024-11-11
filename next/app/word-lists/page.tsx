@@ -36,7 +36,7 @@ const WordLists = () => {
   const filteredWords = words.filter(
     (WordWithCount) =>
       WordWithCount.word.ja.includes(searchQuery) ||
-      WordWithCount.word.en.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      WordWithCount.word.userLang.toLowerCase().includes(searchQuery.toLowerCase()) ||
       WordWithCount.word.romaji.toLowerCase().includes(searchQuery.toLowerCase())
   );
 

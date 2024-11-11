@@ -19,7 +19,7 @@ const TranslationCard = ({ word }: TranslationCardProps) => {
   return (
     <div className="bg-white rounded-xl shadow p-4 mt-2 hover:bg-sky-400" onClick={() => speakText(word.ja)}>
       <div className="text-b">
-        <p className="text-black/50">{word.en}</p>
+        <p className="text-black/50">{word.userLang}</p>
         <div className="flex justify-between">
           <p className="text-lg text-gray-800">{word.romaji}</p>
           <Volume2 className="text-sky-500 hover:text-sky-700" />

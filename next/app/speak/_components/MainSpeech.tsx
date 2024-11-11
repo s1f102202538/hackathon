@@ -62,7 +62,7 @@ const MainSpeech = () => {
 
       const cleanedWordsArray = response.data.wordsList.map((word: Word) => ({
         ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
-        en: word.en.replace(/"/g, ''),
+        userLang: word.userLang.replace(/"/g, ''),
         romaji: word.romaji.replace(/"/g, ''),
       }));
       setWordsArray(cleanedWordsArray);
