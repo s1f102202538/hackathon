@@ -13,9 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Languages {
+  EN
+  EN_GB
+  JA
+  FR
+  DE
+  ES
+  ZH
+  KO
+  IT
+  RU
+}
+
 model User {
   id            String          @id @default(cuid())
   clientId      String          @unique
+  usedLang      Languages       @default(EN)
   words         Word[]
   wordLocations WordsLocation[]
   createdAt     DateTime        @default(now())
@@ -27,7 +41,7 @@ model Word {
   userId    String
   User      User     @relation(fields: [userId], references: [id])
   ja        String
-  en        String
+  userLang  String
   romaji    String
   count     Int      @default(1)
   createdAt DateTime @default(now())

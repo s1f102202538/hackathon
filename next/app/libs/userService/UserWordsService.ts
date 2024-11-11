@@ -27,7 +27,7 @@ export default class UserWordsService {
         data: {
           userId: user.id,
           ja: word.ja,
-          en: word.en,
+          userLang: word.userLang,
           romaji: word.romaji,
         },
       });
@@ -46,7 +46,7 @@ export default class UserWordsService {
         return {
           word: {
             ja: word.ja,
-            en: word.en,
+            userLang: word.userLang,
             romaji: word.romaji,
           } as Word,
           count: word.count,
