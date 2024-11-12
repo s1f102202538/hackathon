@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import Header from '../components/layout/header/page';
-import Navbar from '../components/layout/navbar/page';
+import Header from '../components/layout/header/Header';
+import Navbar from '../components/layout/navbar/Navbar';
 import WordUsageStats from './components/WordUsageStats';
 import WordSearchInput from './components/WordSearchInput';
 import dynamic from 'next/dynamic';

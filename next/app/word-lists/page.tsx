@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Header from 'app/components/layout/header/page';
-import Navbar from 'app/components/layout/navbar/page';
+import Header from 'app/components/layout/header/Header';
+import Navbar from 'app/components/layout/navbar/Navbar';
 import SearchBar from './_components/SearchBar';
 import WordCard from './_components/WordCard';
 import WordDetail from './_components/WordDetail';
