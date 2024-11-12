@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect } from 'react';
-import Navbar from '../components/layout/navbar/page';
+import Navbar from '../components/layout/navbar/Navbar';
 import MainSpeech from './_components/MainSpeech';
 import { useAuth } from '@clerk/nextjs';
-import Header from 'app/components/layout/header/page';
+import Header from 'app/components/layout/header/Header';
 
 const SpeakPage = () => {
   const { isSignedIn, userId } = useAuth();
