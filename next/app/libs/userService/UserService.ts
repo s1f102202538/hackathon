@@ -1,8 +1,21 @@
 import prisma from 'prisma/client';
-import { User } from '@prisma/client';
+import { Languages, User } from '@prisma/client';
 import { ErrorWithtatusCode } from 'app/types/CustomExceptions';
 
 export default class UserService {
+  private static readonly usedLanguagesMap: { [key: string]: string } = {
+    'en-US': 'EN',
+    'en-GB': 'EN_GB',
+    'ja-JP': 'JA',
+    'fr-FR': 'FR',
+    'de-DE': 'DE',
+    'es-ES': 'ES',
+    'zh-CN': 'ZH',
+    'ko-KR': 'KO',
+    'it-IT': 'IT',
+    'ru-RU': 'RU',
+  };
+
   /**
    * クライアントIDに基づいてユーザーを検索します。
    * ユーザーが存在しない場合は null を返します。
@@ -40,5 +53,38 @@ export default class UserService {
 
     console.log(`User created with ID: ${newUser.id}`);
     return newUser;
+  }
+
+  public static async GetUserUsedLang(clientId: string): Promise<Languages> {
+    const user = await this.FindUserByClientId(clientId);
+    if (user === null) {
+      throw Error('UserService: User usedLang not found');
+    }
+
+    return user.usedLang;
+  }
+
+  public static async SetUserUsedLang(clientId: string, usedLang: Languages): Promise<void> {
+    const user = this.FindUserByClientId(clientId);
+    if (user === null) {
+      return;
+    }
+
+    await prisma.user.update({
+      where: { clientId: clientId },
+      data: {
+        usedLang: usedLang,
+      },
+    });
+  }
+
+  public static ConvertLanguagesEnum(lang: string): Languages {
+    const usedLang = this.usedLanguagesMap[lang];
+    if (usedLang === null) {
+      throw Error('UserService: Not included in available languages');
+    }
+
+    const language = Languages[usedLang as keyof typeof Languages];
+    return language;
   }
 }

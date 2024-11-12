@@ -14,7 +14,7 @@ const WordCard = ({ wordWithCount, onSelect }: WordCardProps) => (
     <div className="flex justify-between items-center">
       <div>
         <h2 className="text-2xl mb-1 font-bold text-gray-800">{wordWithCount.word.ja.replace(/"/g, '')}</h2>
-        <p className="text-gray-600">{wordWithCount.word.en.replace(/"/g, '')}</p>
+        <p className="text-gray-600">{wordWithCount.word.userLang.replace(/"/g, '')}</p>
       </div>
       <div className="flex items-center gap-4">
         <span className="bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full text-sm font-medium">
