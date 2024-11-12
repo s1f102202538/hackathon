@@ -3,6 +3,11 @@ name: next-ci
 on:
   pull_request:
     branches:
+      - production
+    paths:
+      - "next/**"
+  pull_request:
+    branches:
       - main
     paths:
       - "next/**"
