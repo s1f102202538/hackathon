@@ -15,7 +15,7 @@ export function useSpeechRecognition(selectedLang: string) {
       recognitionInstance.interimResults = true;
       setRecognition(recognitionInstance);
     }
-  }, []);
+  }, [selectedLang]);
 
   useEffect(() => {
     if (!recognition) return;
@@ -25,7 +25,7 @@ export function useSpeechRecognition(selectedLang: string) {
       recognition.stop();
       setText('');
     }
-  }, [isRecording]);
+  }, [isRecording, recognition]);
 
   useEffect(() => {
     if (!recognition) return;
