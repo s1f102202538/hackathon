@@ -8,6 +8,7 @@ export type GetUserParams = {
 
 export type GetUserResponse = {
   user: User | null;
+  speakLang: string | null;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<GetUserResponse>> {
@@ -15,9 +16,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<GetUserRespon
     const params: GetUserParams = await req.json();
     const user = await UserService.FindUserByClientId(params.clientId);
 
-    return NextResponse.json({ user }, { status: 200 });
+    const speakLang =
+      user !== null && user.usedLang !== undefined ? UserService.ConvertSpeakLanguages(user.usedLang) : null;
+
+    return NextResponse.json({ user, speakLang: speakLang }, { status: 200 });
   } catch (error) {
     console.error('Unexpected Error in POST /api/user/get:', error);
-    return NextResponse.json({ user: null }, { status: 500 });
+    return NextResponse.json({ user: null, speakLang: null }, { status: 500 });
   }
 }
