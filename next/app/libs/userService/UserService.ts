@@ -87,4 +87,14 @@ export default class UserService {
     const language = Languages[usedLang as keyof typeof Languages];
     return language;
   }
+
+  public static ConvertSpeakLanguages(usedLang: Languages): string | null {
+    for (const [key, val] of Object.entries(this.usedLanguagesMap)) {
+      if (val === usedLang) {
+        return key;
+      }
+    }
+
+    return null;
+  }
 }
