@@ -61,7 +61,7 @@ ${content}
   }
 
   private static createWordsArray(answer: string): string[] {
-    const wordsArray = answer.split(',');
+    const wordsArray = answer.replace(/\s+/g, '').split(/,|、/);
     return wordsArray;
   }
 }
