@@ -17,7 +17,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<GetUserRespon
     const user = await UserService.FindUserByClientId(params.clientId);
 
     const speakLang =
-      user !== null && user.usedLang !== undefined ? UserService.ConvertSpeakLanguages(user.usedLang) : null;
+      user !== null && user.usedLang !== undefined && user.usedLang !== null
+        ? UserService.ConvertSpeakLanguages(user.usedLang)
+        : null;
 
     return NextResponse.json({ user, speakLang: speakLang }, { status: 200 });
   } catch (error) {

@@ -20,6 +20,12 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
   try {
     const params: ExtractionWordsParams = await req.json();
     const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
+
+    // userUsedLang が null の場合、エラーレスポンスを返す
+    if (!userUsedLang) {
+      return NextResponse.json({ wordsList: null }, { status: 400, statusText: 'User language not set' });
+    }
+
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
     const translateContent = await DeepLService.TranslatorText(params.content, 'JA');

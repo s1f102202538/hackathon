@@ -3,16 +3,15 @@
 import { useJaSpeechRecognition } from '../../hooks/useJaSpeechRecognition';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import TranslationCard from './TranslationCard';
 import SpeechSection from './SpeechSection';
 import { useAuth } from '@clerk/nextjs';
-
 import { Word } from 'app/types/Word';
+import { GetUserResponse } from 'app/api/user/get/route';
 
 const MainSpeech = () => {
-  // 言語選択の状態
-  const [selectedLang, setSelectedLang] = useState('en-US'); // デフォルトは英語
+  const [selectedLang, setSelectedLang] = useState<string>('');
   // 観光客用の音声認識フック
   const { isRecording, setIsRecording, text, transcript } = useSpeechRecognition(selectedLang);
   // 日本人用の音声認識フック
@@ -61,11 +60,14 @@ const MainSpeech = () => {
         clientId: userId,
         content: inputText, // 録音したテキストを送信
       });
-
+      console.log(response);
       const cleanedWordsArray = response.data.wordsList.map((word: Word) => ({
-        ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
-        userLang: word.userLang.replace(/"/g, ''),
-        romaji: word.romaji.replace(/"/g, ''),
+        // ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
+        // userLang: word.userLang.replace(/"/g, ''),
+        // romaji: word.romaji.replace(/"/g, ''),
+        ja: word.ja, // 日本語文字列から二重引用符を削除
+        userLang: word.userLang,
+        romaji: word.romaji,
       }));
       setWordsArray(cleanedWordsArray);
       console.log(cleanedWordsArray);
@@ -84,6 +86,7 @@ const MainSpeech = () => {
     try {
       const response = await axios.post('/api/translation', {
         text: jaText,
+        // clientId: userId,
       });
 
       setTranslatedText(response.data.text);
@@ -134,29 +137,43 @@ const MainSpeech = () => {
     }
   }, [isRecordingJ, userId, wordsArray, setIsRecordingJ]);
 
+  useEffect(() => {
+    const fetchUserLanguage = async () => {
+      try {
+        const response: AxiosResponse<GetUserResponse> = await axios.post('/api/user/get', {
+          clientId: userId,
+        });
+        const user = response.data.user;
+
+        if (user && user.usedLang) {
+          // DeepLService の convertTranslateLanguages を使用して言語コードを取得
+          const langCode = response.data.speakLang;
+          if (langCode !== null) {
+            console.log('langCode:', langCode);
+            setSelectedLang(langCode);
+          } else {
+            setSelectedLang('en-US');
+          }
+        } else {
+          console.error('User or user language not found');
+        }
+      } catch (error) {
+        console.error('Error fetching user language:', error);
+      }
+    };
+
+    if (isSignedIn) {
+      fetchUserLanguage();
+    }
+  }, [isSignedIn, userId]);
+
+  // selectedLang が取得されるまで待つ
+  // if (!selectedLang) {
+  //   return <div>Loading...</div>;
+  // }
+
   return (
     <div className="flex flex-col space-y-4 p-4">
-      <div className="flex flex-col">
-        <label htmlFor="language-select">Select Language: </label>
-        <select
-          className="bg-black/10 hover:bg-sky-500 w-1/3 rounded-md p-1"
-          id="language-select"
-          value={selectedLang}
-          onChange={(e) => setSelectedLang(e.target.value)}
-        >
-          <option value="en-US">英語（米国）</option>
-          <option value="en-GB">英語（英国）</option>
-          <option value="ja-JP">日本語</option>
-          <option value="fr-FR">フランス語</option>
-          <option value="de-DE">ドイツ語</option>
-          <option value="es-ES">スペイン語</option>
-          <option value="zh-CN">中国語（簡体字）</option>
-          <option value="ko-KR">韓国語</option>
-          <option value="it-IT">イタリア語</option>
-          <option value="ru-RU">ロシア語</option>
-        </select>
-      </div>
-
       {/* Tourist セクション */}
       <SpeechSection
         title="You"
