@@ -22,7 +22,7 @@ const RootLayout = ({ children }: Props) => {
   return (
     <html lang="ja">
       <body>
-        <ClerkProvider>
+        <ClerkProvider afterSignInUrl="/speak">
           <ClientProvider />
           {children}
         </ClerkProvider>

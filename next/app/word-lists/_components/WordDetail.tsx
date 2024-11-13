@@ -39,9 +39,9 @@ const WordDetail = ({ wordWithCount, onClose }: WordDetailProps) => {
           <X className="h-5 w-5" />
         </button>
         <div className="text-center">
-          <p className="text-lg text-gray-500 mb-2">{wordWithCount.word.romaji.replace(/"/g, '')}</p>
-          <h2 className="text-4xl mb-3 font-bold text-gray-800">{wordWithCount.word.ja.replace(/"/g, '')}</h2>
-          <p className="text-2xl text-cyan-600 mb-6">{wordWithCount.word.userLang.replace(/"/g, '')}</p>
+          <p className="text-lg text-gray-500 mb-2">{wordWithCount.word.romaji}</p>
+          <h2 className="text-4xl mb-3 font-bold text-gray-800">{wordWithCount.word.ja}</h2>
+          <p className="text-2xl text-cyan-600 mb-6">{wordWithCount.word.userLang}</p>
           <Link href="/map">
             <button className="w-full mb-4 py-3 px-4 text-lg rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 transition-all duration-300 text-white font-medium shadow-md">
               <MapPin className="inline-block mr-2 h-5 w-5" />
