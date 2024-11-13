@@ -30,7 +30,7 @@ const LanguageSelector: React.FC = () => {
     try {
       console.log(`Saving language: ${selectedLang}`);
       setIsSaving(true);
-      const response = await axios.post('/api/user/save-language', {
+      const response = await axios.post('/api/save-language', {
         clientId: user?.id, // Clerk のユーザー ID を送信
         usedLang: selectedLang,
       });

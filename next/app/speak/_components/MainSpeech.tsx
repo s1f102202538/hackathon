@@ -86,7 +86,7 @@ const MainSpeech = () => {
     try {
       const response = await axios.post('/api/translation', {
         text: jaText,
-        // clientId: userId,
+        clientId: userId,
       });
 
       setTranslatedText(response.data.text);

@@ -5,14 +5,15 @@ import MainSpeech from './_components/MainSpeech';
 import Header from 'app/components/layout/header/Header';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
+import { useAuth, useUser } from '@clerk/nextjs';
 import axios from 'axios';
 
 const SpeakPage = () => {
-  const { isLoaded, isSignedIn } = useUser();
+  const { isLoaded } = useUser();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(true);
   const [usedLang, setUsedLang] = useState<string | null>(null);
+  const { isSignedIn, userId } = useAuth();
 
   console.log('speakpages: ', usedLang);
 
@@ -24,19 +25,11 @@ const SpeakPage = () => {
           router.push('/sign-in');
         } else {
           try {
-            const response = await axios.get('/api/user/get-language');
-            const { usedLang, error } = response.data;
+            const response = await axios.post('/api/user/get', {
+              clientId: userId,
+            });
 
-            if (error) {
-              if (error === 'Unauthorized') {
-                console.log('Unauthorized access, redirecting to /sign-in');
-                router.push('/sign-in');
-                return;
-              }
-              console.error('Error fetching usedLang:', error);
-              // 必要に応じてエラーページにリダイレクト
-              return;
-            }
+            const usedLang = response.data.speakLang;
 
             if (!usedLang) {
               console.log('User language not set, redirecting to /select-language');
