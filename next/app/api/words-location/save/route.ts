@@ -18,7 +18,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<{ status: num
 
     return NextResponse.json({ status: 200 });
   } catch (error) {
-    console.error('Unexpected Error in POST /api/user/words-location/save:', error);
+    console.error('Unexpected Error in POST /api/words-location/save:', error);
     return NextResponse.json({ status: 500 });
   }
 }

@@ -35,6 +35,8 @@ jobs:
           cache: "yarn"
           cache-dependency-path: ./next/yarn.lock
 
+      - run: yarn install --frozen-lockfile
+
       - name: Get chenged ts/tsx files
         id: get_changed_files
         run: |

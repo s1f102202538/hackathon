@@ -44,7 +44,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     }
     return NextResponse.json({ wordsList }, { status: 200 });
   } catch (error) {
-    console.error('Unexpected Error in POST /api/user/word/extraction:', error);
+    console.error('Unexpected Error in POST /api/word/extraction:', error);
     return NextResponse.json({ wordsList: null }, { status: 500 });
   }
 }
