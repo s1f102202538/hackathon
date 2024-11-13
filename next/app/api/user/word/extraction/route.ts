@@ -22,7 +22,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
-    const jp = await OpenAIService.Ask(params.content);
+    const translateContent = await DeepLService.TranslatorText(params.content, 'JA');
+    const jp = await OpenAIService.Ask(translateContent);
     const userLang = await DeepLService.TranslatorTextArray(jp, translateLang);
     const romaji = await WanakanaService.TextArrayToRomaji(jp);
     const wordsList: Word[] = [];

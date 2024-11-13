@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useEffect } from 'react';
-import Navbar from '../components/layout/navbar/page';
+import Navbar from '../components/layout/navbar/Navbar';
 import WordStatsSearch from './components/WordSearchInput';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
