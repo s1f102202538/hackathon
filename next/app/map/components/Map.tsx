@@ -3,6 +3,13 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
+// 型定義にカスタムプロパティを追加
+declare global {
+  interface MarkerWithWords extends google.maps.Marker {
+    words?: string[];
+  }
+}
+
 type Coordinate = {
   lat: number;
   lng: number;
@@ -29,11 +36,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
   searchKey,
 }) => {
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const markersRef = useRef<MarkerWithWords[]>([]);
   const infoWindowRef = useRef<google.maps.OverlayView | null>(null);
   const [currentSelectedTitles, setCurrentSelectedTitles] = useState<string[]>([]);
 
-  // Transform coordinates into an array of coordinate objects
+  // 座標をオブジェクトの配列に変換
   const coordinateArray = useMemo(() => {
     const array: Coordinate[] = [];
     const latitudes = coordinates.Latitude;
@@ -50,7 +57,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     return array;
   }, [coordinates]);
 
-  // Map and marker initialization
+  // マップとマーカーの初期化
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_GOOGLE_APIKEY;
 
@@ -83,18 +90,26 @@ const MapComponent: React.FC<MapComponentProps> = ({
             this.containerDiv.style.pointerEvents = 'none';
 
             const contentDiv = document.createElement('div');
-            contentDiv.innerHTML = titles
-              .map((title) => {
-                return `<span style="background-color: #ffff00; padding: 2px; border-radius: 3px;">${title}</span>`;
-              })
-              .join(', ');
-            contentDiv.style.background = 'rgba(255, 255, 255, 0.6)';
-            contentDiv.style.padding = '6px';
+            contentDiv.style.background = 'rgba(255, 255, 255, 0.9)';
+            contentDiv.style.padding = '10px';
             contentDiv.style.borderRadius = '4px';
             contentDiv.style.fontSize = '13px';
-            contentDiv.style.pointerEvents = 'none';
+            contentDiv.style.pointerEvents = 'auto';
             contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
             contentDiv.style.position = 'relative';
+
+            // タイトルをスタイリングして追加
+            titles.forEach((title, index) => {
+              const span = document.createElement('span');
+              span.textContent = title;
+              span.style.backgroundColor = '#ffff00';
+              span.style.padding = '2px 4px';
+              span.style.borderRadius = '3px';
+              contentDiv.appendChild(span);
+              if (index < titles.length - 1) {
+                contentDiv.appendChild(document.createTextNode(', '));
+              }
+            });
 
             const lineBreak = document.createElement('br');
             contentDiv.appendChild(lineBreak);
@@ -102,15 +117,14 @@ const MapComponent: React.FC<MapComponentProps> = ({
             const streetViewButton = document.createElement('button');
             streetViewButton.innerText = 'Street View';
             streetViewButton.style.display = 'block';
-            streetViewButton.style.margin = '8px auto';
-            streetViewButton.style.padding = '5px 5px';
+            streetViewButton.style.margin = '8px auto 0 auto';
+            streetViewButton.style.padding = '5px 10px';
             streetViewButton.style.fontSize = '13px';
             streetViewButton.style.cursor = 'pointer';
             streetViewButton.style.backgroundColor = '#4285F4';
             streetViewButton.style.color = '#fff';
             streetViewButton.style.border = 'none';
             streetViewButton.style.borderRadius = '3px';
-            streetViewButton.style.pointerEvents = 'auto';
 
             streetViewButton.addEventListener('click', (e) => {
               e.stopPropagation();
@@ -174,16 +188,21 @@ const MapComponent: React.FC<MapComponentProps> = ({
           );
         }
 
+        // 既存のマーカーをクリア
         markersRef.current.forEach((marker) => marker.setMap(null));
         markersRef.current = [];
 
+        // 新しいマーカーを追加
         coordinateArray.forEach((coord) => {
           const marker = new google.maps.Marker({
             position: { lat: coord.lat, lng: coord.lng },
             map: mapRef.current!,
             title: coord.words.join(', '),
             icon: iconPath,
-          });
+          }) as MarkerWithWords;
+
+          // カスタムプロパティとして単語を設定
+          marker.words = coord.words;
 
           marker.addListener('click', () => {
             setCurrentSelectedTitles(coord.words);
@@ -213,6 +232,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
           markersRef.current.push(marker);
         });
 
+        // 地図の範囲を調整
         if (coordinateArray.length > 0) {
           const bounds = new google.maps.LatLngBounds();
           coordinateArray.forEach((coord) => {
@@ -224,49 +244,44 @@ const MapComponent: React.FC<MapComponentProps> = ({
       .catch((e) => {
         console.error('Failed to load Google Maps API:', e);
       });
-  }, [coordinateArray, iconPath, selectedIconPath]);
+  }, [coordinateArray, iconPath, selectedIconPath]); // 依存配列は useEffect の第二引数
 
-  // Handle searchTerm changes
+  // searchTerm の変更を処理（部分一致も含む）
   useEffect(() => {
-    if (searchTerm.trim() === '') {
+    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
+
+    if (trimmedSearchTerm === '') {
       setCurrentSelectedTitles([]);
       resetMarkers();
       return;
     }
 
-    const matchedCoordinates = coordinateArray.filter((coord) =>
-      coord.words.some((t) => t.toLowerCase() === searchTerm.trim().toLowerCase())
-    );
+    // 現在選択されているタイトルを設定
+    setCurrentSelectedTitles([searchTerm]);
 
-    if (matchedCoordinates.length > 0) {
-      const matchedTitles = matchedCoordinates.flatMap((coord) => coord.words);
-      setCurrentSelectedTitles(matchedTitles);
+    // すべてのマーカーをチェック
+    markersRef.current.forEach((marker) => {
+      const words = marker.words || [];
+      const isMatch = words.some(
+        (word) =>
+          word.toLowerCase() === trimmedSearchTerm ||
+          word.toLowerCase().includes(trimmedSearchTerm)
+      );
+      if (isMatch) {
+        google.maps.event.trigger(marker, 'click');
+      }
+    });
+  }, [searchTerm, searchKey, coordinateArray]);
 
-      matchedCoordinates.forEach((matchedCoord) => {
-        const markerToSelect = markersRef.current.find((marker) => {
-          const title = marker.getTitle();
-          if (!title) return false;
-          return title.split(', ').some((t) => matchedCoord.words.includes(t));
-        });
-
-        if (markerToSelect) {
-          google.maps.event.trigger(markerToSelect, 'click');
-        }
-      });
-    } else {
-      setCurrentSelectedTitles([]);
-      resetMarkers();
-    }
-  }, [searchTerm, searchKey]);
-
-  // Update markers based on currentSelectedTitles
+  // 選択されたタイトルに基づいてマーカーを更新
   useEffect(() => {
     markersRef.current.forEach((marker) => {
-      const title = marker.getTitle();
-      if (!title) return;
-
-      const markerTitles = title.split(', ');
-      const isSelected = markerTitles.some((t) => currentSelectedTitles.includes(t));
+      const words = marker.words || [];
+      const isSelected = words.some((word) =>
+        currentSelectedTitles
+          .map((ct) => ct.toLowerCase())
+          .includes(word.toLowerCase())
+      );
 
       if (isSelected) {
         marker.setIcon(selectedIconPath);
@@ -289,7 +304,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     });
   };
 
-  return <div id="map" style={{ width: '100%', height: '400px' }} />;
+  return <div id="map" style={{ width: '100%', height: '100vh' }} />;
 };
 
 export default MapComponent;

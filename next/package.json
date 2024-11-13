@@ -13,18 +13,13 @@
     "@google-cloud/text-to-speech": "^5.5.0",
     "@googlemaps/js-api-loader": "^1.16.8",
     "@prisma/client": "^5.21.1",
-<<<<<<< Updated upstream
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-slot": "^1.1.0",
+    "@react-google-maps/api": "^2.20.3",
     "axios": "^1.7.7",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
-=======
-    "@react-google-maps/api": "^2.20.3",
-    "axios": "^1.7.7",
-    "clsx": "^2.1.1",
     "inspector": "^0.5.0",
->>>>>>> Stashed changes
     "lucide-react": "^0.454.0",
     "next": "14.2.13",
     "next-connect": "^1.0.0",
@@ -32,7 +27,9 @@
     "openai": "^4.70.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-select": "^5.8.3",
     "shadcn": "^2.1.5",
+    "shadcn-ui": "^0.9.3",
     "tailwind-merge": "^2.5.4",
     "tailwindcss-animate": "^1.0.7",
     "uuid": "^11.0.2"

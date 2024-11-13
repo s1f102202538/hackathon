@@ -1,9 +1,7 @@
-'use client';
-
+"use client";
 import React, { useState, useEffect } from 'react';
-import Header from '../components/layout/header/page';
 import Navbar from '../components/layout/navbar/page';
-import WordSearchInput from './components/WordSearchInput';
+import WordStatsSearch from './components/WordSearchInput';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
@@ -64,9 +62,10 @@ const HomePage: React.FC = () => {
     }
     getWordsLocation();
   }, [userId]);
-
   const iconPath = '/images/mapicon_pin_red1_32x32.png';
   const selectedIconPath = '/images/mapicon_pin_blue1_32x32.png';
+
+  console.log(coordinates,searchTerm,searchKey)
 
   const handleSearch = (searchTerm: string) => {
     setSearchTerm(searchTerm);
@@ -74,12 +73,8 @@ const HomePage: React.FC = () => {
   };
 
   return (
-    <div style={{ backgroundColor: '#F0F8FF' }}>
-      <Header title="Word Map" />
-      <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-        <WordSearchInput placeholder="おはよう" onSearch={handleSearch} />
-      </div>
-      <div style={{ marginBottom: '80px' }}>
+    <div style={{height:'100%', width:'100%'}}>
+        <WordStatsSearch onSearch={handleSearch} />
         {coordinates && (
           <MapComponent
             coordinates={coordinates}
@@ -89,7 +84,6 @@ const HomePage: React.FC = () => {
             searchKey={searchKey}
           />
         )}
-      </div>
       <Navbar />
     </div>
   );
