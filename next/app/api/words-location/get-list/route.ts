@@ -19,7 +19,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<GetWordsLocat
 
     return NextResponse.json({ wordsLocationList }, { status: 200 });
   } catch (error) {
-    console.error('Unexpected Error in POST /api/user/words-location:', error);
+    console.error('Unexpected Error in POST /api/words-location/get-list:', error);
     return NextResponse.json({ wordsLocationList: null }, { status: 500 });
   }
 }

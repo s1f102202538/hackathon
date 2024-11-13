@@ -55,7 +55,7 @@ const MainSpeech = () => {
     }
 
     try {
-      const response = await axios.post('/api/user/word/extraction', {
+      const response = await axios.post('/api/word/extraction', {
         clientId: userId,
         content: inputText, // 録音したテキストを送信
       });
@@ -114,7 +114,7 @@ const MainSpeech = () => {
           const { latitude, longitude } = position.coords;
 
           try {
-            await axios.post('/api/user/words-location/save', {
+            await axios.post('/api/words-location/save', {
               clientId: userId,
               words: wordsArray,
               lat: latitude.toString(),
