@@ -29,14 +29,14 @@ const MainSpeech = () => {
 
   const { isSignedIn, userId } = useAuth(); // useAuth から userId を取得
 
-  // 観光客の音声認識が終了したときに text を inputText に反映する
+  // 観光客の音声認識が終了したときに `text` を `inputText` に反映する
   useEffect(() => {
     if (!isRecording && text) {
       setInputText(text);
     }
   }, [isRecording, text]);
 
-  // 日本人の音声認識が終了したときに textJ を inputTextJ に反映する
+  // 日本人の音声認識が終了したときに `textJ` を `inputTextJ` に反映する
   useEffect(() => {
     if (!isRecordingJ && textJ) {
       setInputTextJ(textJ);
