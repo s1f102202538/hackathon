@@ -29,13 +29,16 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
     const translateContent = await DeepLService.TranslatorText(params.content, 'JA');
-    const jp = await OpenAIService.Ask(translateContent);
-    const userLang = await DeepLService.TranslatorTextArray(jp, translateLang);
-    const romaji = await WanakanaService.TextArrayToRomaji(jp);
+    const array = await OpenAIService.Ask(translateContent);
+    const kanji = array[0];
+    const hiragana = array[1];
+    const userLang = await DeepLService.TranslatorTextArray(kanji, translateLang);
+    console.log('usrLang------->', userLang);
+    const romaji = await WanakanaService.TextArrayToRomaji(hiragana);
     const wordsList: Word[] = [];
-    for (let i = 0; i < jp.length; i++) {
+    for (let i = 0; i < kanji.length; i++) {
       const word: Word = {
-        ja: jp[i],
+        ja: hiragana[i],
         userLang: userLang[i],
         romaji: romaji[i],
       };
