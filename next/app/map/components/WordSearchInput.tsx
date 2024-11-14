@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
-import Select, {StylesConfig,components, MenuListComponentProps, ActionMeta, OnChangeValue,} from 'react-select';
+import Select, {StylesConfig,components,OnChangeValue,MenuListProps} from 'react-select';
 
 interface OptionType {
   value: string;
@@ -12,7 +12,7 @@ interface WordStatsSearchProps {
   onSearch: (searchTerm: string) => void;
 }
 
-const CustomMenuList: React.FC<MenuListComponentProps<OptionType, false>> = (props) => {
+const CustomMenuList= (props: MenuListProps<OptionType, false>) => {
   return (
     <components.MenuList {...props}>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
@@ -140,7 +140,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   };
 
   // `Select` コンポーネントのonChangeハンドラー
-  const handleChange = (option: OnChangeValue<OptionType, false>, actionMeta: ActionMeta<OptionType>) => {
+  const handleChange = (option: OnChangeValue<OptionType, false>) => {
     if (option) {
       setSearchTerm(option.value);
       setInputValue(option.value); // 入力値も更新
@@ -153,7 +153,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   };
 
   // `Select` コンポーネントのonInputChangeハンドラー
-  const handleInputChange = (newValue: string, actionMeta: ActionMeta<OptionType>) => {
+  const handleInputChange = (newValue: string) => {
     setInputValue(newValue);
   };
 

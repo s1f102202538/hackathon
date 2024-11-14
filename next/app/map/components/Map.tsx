@@ -91,6 +91,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             this.containerDiv = document.createElement('div');
             this.containerDiv.style.position = 'absolute';
             this.containerDiv.style.pointerEvents = 'none';
+            this.containerDiv.style.zIndex = '1000'; // 高いz-indexを設定
 
             const contentDiv = document.createElement('div');
             contentDiv.style.background = 'rgba(255, 255, 255, 0.9)';
@@ -100,8 +101,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
             contentDiv.style.pointerEvents = 'auto';
             contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
             contentDiv.style.position = 'relative';
-
-            // 中央揃えを追加
             contentDiv.style.textAlign = 'center';
 
             // タイトルをスタイリングして追加
@@ -139,9 +138,13 @@ const MapComponent: React.FC<MapComponentProps> = ({
             streetViewImage.style.cursor = 'pointer';
             streetViewImage.style.borderRadius = '3px';
             streetViewImage.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
+            streetViewImage.style.pointerEvents = 'auto'; // 明示的に設定
 
+            // デバッグ用ログ
             streetViewImage.addEventListener('click', (e) => {
               e.stopPropagation();
+              e.preventDefault();
+              console.log('Street View Image clicked');
               onStreetView();
             });
 
@@ -194,9 +197,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
           mapRef.current = new google.maps.Map(
             document.getElementById('map') as HTMLElement,
             {
-              center: coordinateArray[0]
-                ? { lat: coordinateArray[0].lat, lng: coordinateArray[0].lng }
-                : { lat: 0, lng: 0 },
+              center: { lat: 0, lng: 0 },
               zoom: 5,
               fullscreenControl: false, // マップ自体の全画面ボタンを無効化
               mapTypeControl: false,
@@ -209,6 +210,19 @@ const MapComponent: React.FC<MapComponentProps> = ({
           streetView.setOptions({
             fullscreenControl: false, // 全画面ボタンを無効化
             // 他のオプションも必要に応じて設定できます
+          });
+
+          // マップのクリックリスナーを設定
+          mapRef.current.addListener('click', () => {
+            // 選択状態をリセット
+            setCurrentSelectedTitles([]);
+            resetMarkers();
+
+            // 開いているインフォウィンドウを閉じる
+            if (infoWindowRef.current) {
+              (infoWindowRef.current as CustomInfoWindow).close();
+              infoWindowRef.current = null;
+            }
           });
         }
 
@@ -271,19 +285,18 @@ const MapComponent: React.FC<MapComponentProps> = ({
           markersRef.current.push(marker);
         });
 
-        // 地図の範囲を調整
+        // 初期表示時に全マーカーを含むように地図の範囲を調整
         if (coordinateArray.length > 0) {
           const bounds = new google.maps.LatLngBounds();
           coordinateArray.forEach((coord) => {
-            bounds.extend({ lat: coord.lat, lng: coord.lng });
+            bounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
           });
           mapRef.current.fitBounds(bounds);
         }
       })
-      .catch((e) => {
-        console.error('Failed to load Google Maps API:', e);
-      });
-  }, [coordinateArray, iconPath, selectedIconPath, apiKey]); // Added apiKey to dependencies
+      // ここで依存配列を正しい位置に移動
+      ; // 注意: セミコロンは必要ありません
+  }, [coordinateArray, iconPath, selectedIconPath, apiKey]); // 依存配列を useEffect の第二引数として正しく配置
 
   // searchTerm の変更を処理（部分一致も含む）
   useEffect(() => {
@@ -334,6 +347,30 @@ const MapComponent: React.FC<MapComponentProps> = ({
         marker.setAnimation(null);
       }
     });
+
+    // 選択されたマーカーに基づいて地図の中心を調整（ズームは変更しない）
+    if (currentSelectedTitles.length > 0 && mapRef.current) {
+      const selectedMarkers = markersRef.current.filter((marker) => {
+        const words = marker.words || [];
+        return words.some((word) =>
+          currentSelectedTitles
+            .map((ct) => ct.toLowerCase())
+            .includes(word.toLowerCase())
+        );
+      });
+
+      if (selectedMarkers.length > 0) {
+        // 中心点を計算
+        const avgLat =
+          selectedMarkers.reduce((sum, marker) => sum + marker.getPosition()!.lat(), 0) /
+          selectedMarkers.length;
+        const avgLng =
+          selectedMarkers.reduce((sum, marker) => sum + marker.getPosition()!.lng(), 0) /
+          selectedMarkers.length;
+
+        mapRef.current.setCenter({ lat: avgLat, lng: avgLng });
+      }
+    }
   }, [currentSelectedTitles, iconPath, selectedIconPath]);
 
   const resetMarkers = () => {
@@ -346,7 +383,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   return (
     <>
       <div id="map" className="custom-map" style={{ width: '100%', height: '100vh' }} />
-      <style jsx global>{`
+      <style>{`
         /* Zoom ControlとStreet View Controlの位置を調整 */
         .custom-map .gm-bundled-control-on-bottom {
           bottom: 35% !important;
@@ -354,6 +391,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
       `}</style>
     </>
   );
-};
+}; // セミコロンを削除して閉じ括弧のみ
 
 export default MapComponent;
