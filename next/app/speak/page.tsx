@@ -21,10 +21,6 @@ const SpeakPage = () => {
   useEffect(() => {
     const checkLanguage = async () => {
       if (isLoaded) {
-        // if (!isSignedIn) {
-        //   console.log('User not signed in, redirecting to /sign-in');
-        //   router.push('/sign-in');
-        // } else {
         try {
           const response = await axios.post('/api/user/get', {
             clientId: userId,
@@ -48,7 +44,6 @@ const SpeakPage = () => {
         }
       }
     };
-    // };
 
     checkLanguage();
   }, [isLoaded, isSignedIn, router, userId]);
