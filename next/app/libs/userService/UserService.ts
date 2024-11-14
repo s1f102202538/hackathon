@@ -55,17 +55,17 @@ export default class UserService {
     return newUser;
   }
 
-  public static async GetUserUsedLang(clientId: string): Promise<Languages> {
+  public static async GetUserUsedLang(clientId: string): Promise<Languages | null> {
     const user = await this.FindUserByClientId(clientId);
-    if (user === null) {
-      throw Error('UserService: User usedLang not found');
+    if (!user) {
+      throw new Error('User language not set');
     }
 
     return user.usedLang;
   }
 
   public static async SetUserUsedLang(clientId: string, usedLang: Languages): Promise<void> {
-    const user = this.FindUserByClientId(clientId);
+    const user = await this.FindUserByClientId(clientId);
     if (user === null) {
       return;
     }
@@ -80,11 +80,21 @@ export default class UserService {
 
   public static ConvertLanguagesEnum(lang: string): Languages {
     const usedLang = this.usedLanguagesMap[lang];
-    if (usedLang === null) {
+    if (!usedLang) {
       throw Error('UserService: Not included in available languages');
     }
 
     const language = Languages[usedLang as keyof typeof Languages];
     return language;
+  }
+
+  public static ConvertSpeakLanguages(usedLang: Languages): string | null {
+    for (const [key, val] of Object.entries(this.usedLanguagesMap)) {
+      if (val === usedLang) {
+        return key;
+      }
+    }
+
+    return null;
   }
 }

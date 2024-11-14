@@ -20,7 +20,7 @@ const WordLists = () => {
     if (isSignedIn && userId) {
       const fetchWords = async () => {
         try {
-          const response = await axios.post('/api/user/word/get-list', {
+          const response = await axios.post('/api/word/get-list', {
             clientId: userId,
           });
           setWords(response.data.wordsList || []);

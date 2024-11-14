@@ -11,11 +11,11 @@ export async function POST(req: NextRequest): Promise<NextResponse<{ status: num
     const param: SetUserUsedLangParams = await req.json();
     const lang = UserService.ConvertLanguagesEnum(param.usedLang);
 
-    UserService.SetUserUsedLang(param.clientId, lang);
+    await UserService.SetUserUsedLang(param.clientId, lang);
 
     return NextResponse.json({ status: 200 });
   } catch (error) {
-    console.error('Unexpected Error in POST /api/user/save-language:', error);
+    console.error('Unexpected Error in POST /api/save-language:', error);
     return NextResponse.json({ status: 500 });
   }
 }
