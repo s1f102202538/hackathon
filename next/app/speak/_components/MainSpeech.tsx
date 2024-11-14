@@ -9,6 +9,7 @@ import SpeechSection from './SpeechSection';
 import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
 import { GetUserResponse } from 'app/api/user/get/route';
+import toast from 'react-hot-toast';
 
 const MainSpeech = () => {
   const [selectedLang, setSelectedLang] = useState<string>('');
@@ -62,17 +63,15 @@ const MainSpeech = () => {
       });
       console.log(response);
       const cleanedWordsArray = response.data.wordsList.map((word: Word) => ({
-        // ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
-        // userLang: word.userLang.replace(/"/g, ''),
-        // romaji: word.romaji.replace(/"/g, ''),
-        ja: word.ja, // 日本語文字列から二重引用符を削除
-        userLang: word.userLang,
-        romaji: word.romaji,
+        ja: word.ja.replace(/["']/g, ''), // 日本語文字列から二重引用符と単一引用符を削除
+        userLang: word.userLang.replace(/["']/g, ''),
+        romaji: word.romaji.replace(/["']/g, ''),
       }));
       setWordsArray(cleanedWordsArray);
       console.log(cleanedWordsArray);
     } catch (error) {
-      console.error('Error fetching translation:', error);
+      toast.error('Push translate button again');
+      console.error(error);
     }
   }, [isSignedIn, userId, inputText]);
 
