@@ -294,8 +294,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
           mapRef.current.fitBounds(bounds);
         }
       })
-      // ここで依存配列を正しい位置に移動
-      ; // 注意: セミコロンは必要ありません
   }, [coordinateArray, iconPath, selectedIconPath, apiKey]); // 依存配列を useEffect の第二引数として正しく配置
 
   // searchTerm の変更を処理（部分一致も含む）
@@ -391,6 +389,5 @@ const MapComponent: React.FC<MapComponentProps> = ({
       `}</style>
     </>
   );
-}; // セミコロンを削除して閉じ括弧のみ
-
+};
 export default MapComponent;

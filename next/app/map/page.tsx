@@ -1,12 +1,12 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/navbar/Navbar';
-import WordStatsSearch from './components/WordSearchInput';
+import WordStatsSearch from './_components/WordSearchInput';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
 
-const MapComponent = dynamic(() => import('./components/Map'), { ssr: false });
+const MapComponent = dynamic(() => import('./_components/Map'), { ssr: false });
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');

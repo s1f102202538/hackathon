@@ -76,7 +76,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
 
   const fetchWords = async () => {
     try {
-      const response = await axios.post('/api/user/words-location/get-list', {
+      const response = await axios.post('/api/words-location/get-list', {
         clientId: userId,
       });
       return response.data;
