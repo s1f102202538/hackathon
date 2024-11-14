@@ -55,10 +55,10 @@ export default class UserService {
     return newUser;
   }
 
-  public static async GetUserUsedLang(clientId: string): Promise<Languages | null> {
+  public static async GetUserUsedLang(clientId: string): Promise<Languages> {
     const user = await this.FindUserByClientId(clientId);
     if (!user) {
-      throw new Error('User language not set');
+      throw new Error('UserService: User UsedLang not found');
     }
 
     return user.usedLang;
