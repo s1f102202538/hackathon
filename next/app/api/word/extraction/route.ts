@@ -21,11 +21,6 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const params: ExtractionWordsParams = await req.json();
     const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
 
-    // userUsedLang が null の場合、エラーレスポンスを返す
-    if (!userUsedLang) {
-      return NextResponse.json({ wordsList: null }, { status: 400, statusText: 'User language not set' });
-    }
-
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
     const translateContent = await DeepLService.TranslatorText(params.content, 'JA');
@@ -33,7 +28,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const kanji = array[0];
     const hiragana = array[1];
     const userLang = await DeepLService.TranslatorTextArray(kanji, translateLang);
-    console.log('usrLang------->', userLang);
+
     const romaji = await WanakanaService.TextArrayToRomaji(hiragana);
     const wordsList: Word[] = [];
     for (let i = 0; i < kanji.length; i++) {
