@@ -74,7 +74,10 @@ const HomePage: React.FC = () => {
 
   return (
     <div style={{height:'100%', width:'100%'}}>
-        <WordStatsSearch onSearch={handleSearch} />
+      <div style={{ position: 'relative', height: '100%', width: '100%' }}>
+      <div style={{ position: 'absolute',  zIndex: 1, width: '100%' }}>
+          <WordStatsSearch onSearch={handleSearch} />
+        </div>
         {coordinates && (
           <MapComponent
             coordinates={coordinates}
@@ -85,6 +88,7 @@ const HomePage: React.FC = () => {
           />
         )}
       <Navbar />
+      </div>
     </div>
   );
 };

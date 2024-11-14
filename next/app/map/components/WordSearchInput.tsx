@@ -36,7 +36,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   const customStyles: StylesConfig<OptionType, false> = {
     control: (provided) => ({
       ...provided,
-      borderRadius: '5px',
+      borderRadius: '50px',
       borderColor: '#CCC',
       minHeight: '40px',
     }),
@@ -46,8 +46,8 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
     }),
     menu: (provided) => ({
       ...provided,
-      borderRadius: '5px',
-      marginTop: '2px',
+      borderRadius: '10px',
+      marginTop: '0px',
       padding: '0px',
       maxHeight: '250px',
       overflowY: 'auto',
