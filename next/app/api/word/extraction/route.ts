@@ -20,16 +20,25 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
   try {
     const params: ExtractionWordsParams = await req.json();
     const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
+
+    // userUsedLang が null の場合、エラーレスポンスを返す
+    if (!userUsedLang) {
+      return NextResponse.json({ wordsList: null }, { status: 400, statusText: 'User language not set' });
+    }
+
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
     const translateContent = await DeepLService.TranslatorText(params.content, 'JA');
-    const jp = await OpenAIService.Ask(translateContent);
-    const userLang = await DeepLService.TranslatorTextArray(jp, translateLang);
-    const romaji = await WanakanaService.TextArrayToRomaji(jp);
+    const array = await OpenAIService.Ask(translateContent);
+    const kanji = array[0];
+    const hiragana = array[1];
+    const userLang = await DeepLService.TranslatorTextArray(kanji, translateLang);
+    console.log('usrLang------->', userLang);
+    const romaji = await WanakanaService.TextArrayToRomaji(hiragana);
     const wordsList: Word[] = [];
-    for (let i = 0; i < jp.length; i++) {
+    for (let i = 0; i < kanji.length; i++) {
       const word: Word = {
-        ja: jp[i],
+        ja: hiragana[i],
         userLang: userLang[i],
         romaji: romaji[i],
       };
@@ -38,7 +47,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     }
     return NextResponse.json({ wordsList }, { status: 200 });
   } catch (error) {
-    console.error('Unexpected Error in POST /api/user/word/extraction:', error);
+    console.error('Unexpected Error in POST /api/word/extraction:', error);
     return NextResponse.json({ wordsList: null }, { status: 500 });
   }
 }
