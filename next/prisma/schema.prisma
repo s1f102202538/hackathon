@@ -30,7 +30,7 @@ enum Languages {
 model User {
   id            String          @id @default(cuid())
   clientId      String          @unique
-  usedLang      Languages       @default(EN)
+  usedLang      Languages?
   words         Word[]
   wordLocations WordsLocation[]
   createdAt     DateTime        @default(now())
@@ -42,7 +42,7 @@ model Word {
   userId    String
   User      User     @relation(fields: [userId], references: [id])
   ja        String
-  userLang  String
+  userLang  String?
   romaji    String
   count     Int      @default(1)
   createdAt DateTime @default(now())

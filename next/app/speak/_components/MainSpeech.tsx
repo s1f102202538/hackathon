@@ -1,18 +1,19 @@
 'use client';
 
 import { useJaSpeechRecognition } from '../../hooks/useJaSpeechRecognition';
-import { useEnSpeechRecognition } from '../../hooks/useEnSpeechRecognition';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import TranslationCard from './TranslationCard';
 import SpeechSection from './SpeechSection';
 import { useAuth } from '@clerk/nextjs';
-
 import { Word } from 'app/types/Word';
+import { GetUserResponse } from 'app/api/user/get/route';
 
 const MainSpeech = () => {
+  const [selectedLang, setSelectedLang] = useState<string>('');
   // 観光客用の音声認識フック
-  const { isRecording, setIsRecording, text, transcript } = useEnSpeechRecognition();
+  const { isRecording, setIsRecording, text, transcript } = useSpeechRecognition(selectedLang);
   // 日本人用の音声認識フック
   const { isRecordingJ, setIsRecordingJ, textJ, transcriptJ } = useJaSpeechRecognition();
 
@@ -28,14 +29,14 @@ const MainSpeech = () => {
 
   const { isSignedIn, userId } = useAuth(); // useAuth から userId を取得
 
-  // 観光客の音声認識が終了したときに text を inputText に反映する
+  // 観光客の音声認識が終了したときに `text` を `inputText` に反映する
   useEffect(() => {
     if (!isRecording && text) {
       setInputText(text);
     }
   }, [isRecording, text]);
 
-  // 日本人の音声認識が終了したときに textJ を inputTextJ に反映する
+  // 日本人の音声認識が終了したときに `textJ` を `inputTextJ` に反映する
   useEffect(() => {
     if (!isRecordingJ && textJ) {
       setInputTextJ(textJ);
@@ -55,15 +56,18 @@ const MainSpeech = () => {
     }
 
     try {
-      const response = await axios.post('/api/user/word/extraction', {
+      const response = await axios.post('/api/word/extraction', {
         clientId: userId,
         content: inputText, // 録音したテキストを送信
       });
-
+      console.log(response);
       const cleanedWordsArray = response.data.wordsList.map((word: Word) => ({
-        ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
-        userLang: word.userLang.replace(/"/g, ''),
-        romaji: word.romaji.replace(/"/g, ''),
+        // ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
+        // userLang: word.userLang.replace(/"/g, ''),
+        // romaji: word.romaji.replace(/"/g, ''),
+        ja: word.ja, // 日本語文字列から二重引用符を削除
+        userLang: word.userLang,
+        romaji: word.romaji,
       }));
       setWordsArray(cleanedWordsArray);
       console.log(cleanedWordsArray);
@@ -82,6 +86,7 @@ const MainSpeech = () => {
     try {
       const response = await axios.post('/api/translation', {
         text: jaText,
+        clientId: userId,
       });
 
       setTranslatedText(response.data.text);
@@ -114,7 +119,7 @@ const MainSpeech = () => {
           const { latitude, longitude } = position.coords;
 
           try {
-            await axios.post('/api/user/words-location/save', {
+            await axios.post('/api/words-location/save', {
               clientId: userId,
               words: wordsArray,
               lat: latitude.toString(),
@@ -131,6 +136,41 @@ const MainSpeech = () => {
       );
     }
   }, [isRecordingJ, userId, wordsArray, setIsRecordingJ]);
+
+  useEffect(() => {
+    const fetchUserLanguage = async () => {
+      try {
+        const response: AxiosResponse<GetUserResponse> = await axios.post('/api/user/get', {
+          clientId: userId,
+        });
+        const user = response.data.user;
+
+        if (user && user.usedLang) {
+          // DeepLService の convertTranslateLanguages を使用して言語コードを取得
+          const langCode = response.data.speakLang;
+          if (langCode !== null) {
+            console.log('langCode:', langCode);
+            setSelectedLang(langCode);
+          } else {
+            setSelectedLang('en-US');
+          }
+        } else {
+          console.error('User or user language not found');
+        }
+      } catch (error) {
+        console.error('Error fetching user language:', error);
+      }
+    };
+
+    if (isSignedIn) {
+      fetchUserLanguage();
+    }
+  }, [isSignedIn, userId]);
+
+  // selectedLang が取得されるまで待つ
+  // if (!selectedLang) {
+  //   return <div>Loading...</div>;
+  // }
 
   return (
     <div className="flex flex-col space-y-4 p-4">

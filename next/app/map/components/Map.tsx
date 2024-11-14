@@ -1,31 +1,20 @@
 // components/Map.tsx
 'use client';
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 
-// 型定義にカスタムプロパティを追加
-declare global {
-  interface MarkerWithWords extends google.maps.Marker {
-    words?: string[];
-  }
-}
-
-type Coordinate = {
+interface Coordinate {
   lat: number;
   lng: number;
-  words: string[];
-};
+  title: string[]; // title を配列として保持
+}
 
 interface MapComponentProps {
-  coordinates: {
-    Latitude: string[];
-    Longitude: string[];
-    word: string[][];
-  };
-  iconPath: string;
-  selectedIconPath: string;
-  searchTerm: string;
-  searchKey: number;
+  coordinates: Coordinate[];
+  iconPath: string; // 通常時のアイコンのパス
+  selectedIconPath: string; // 選択時のアイコンのパス
+  searchTerm: string; // 検索語
+  searchKey: number; // 検索のトリガー（毎回検索が実行されるたびに増加）
 }
 
 const MapComponent: React.FC<MapComponentProps> = ({
@@ -33,31 +22,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
   iconPath,
   selectedIconPath,
   searchTerm,
-  searchKey,
+  searchKey, // 追加
 }) => {
   const mapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<MarkerWithWords[]>([]);
+  const markersRef = useRef<google.maps.Marker[]>([]);
   const infoWindowRef = useRef<google.maps.OverlayView | null>(null);
   const [currentSelectedTitles, setCurrentSelectedTitles] = useState<string[]>([]);
-
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_APIKEY || '';
-
-  // 座標をオブジェクトの配列に変換
-  const coordinateArray = useMemo(() => {
-    const array: Coordinate[] = [];
-    const latitudes = coordinates.Latitude;
-    const longitudes = coordinates.Longitude;
-    const wordsArray = coordinates.word;
-
-    for (let i = 0; i < latitudes.length; i++) {
-      array.push({
-        lat: parseFloat(latitudes[i]),
-        lng: parseFloat(longitudes[i]),
-        words: wordsArray[i],
-      });
-    }
-    return array;
-  }, [coordinates]);
 
   // マップとマーカーの初期化
   useEffect(() => {
@@ -72,94 +42,43 @@ const MapComponent: React.FC<MapComponentProps> = ({
       .then(() => {
         class CustomInfoWindow extends google.maps.OverlayView {
           private position: google.maps.LatLng;
+          private content: HTMLElement;
           private containerDiv: HTMLDivElement;
-          private map: google.maps.Map;
-          private apiKey: string;
 
-          constructor(
-            position: google.maps.LatLng,
-            titles: string[],
-            onStreetView: () => void,
-            map: google.maps.Map,
-            apiKey: string
-          ) {
+          constructor(position: google.maps.LatLng, content: string) {
             super();
             this.position = position;
-            this.map = map;
-            this.apiKey = apiKey;
 
+            // コンテナの作成
             this.containerDiv = document.createElement('div');
             this.containerDiv.style.position = 'absolute';
             this.containerDiv.style.pointerEvents = 'none';
 
-            const contentDiv = document.createElement('div');
-            contentDiv.style.background = 'rgba(255, 255, 255, 0.9)';
-            contentDiv.style.padding = '10px';
-            contentDiv.style.borderRadius = '4px';
-            contentDiv.style.fontSize = '13px';
-            contentDiv.style.pointerEvents = 'auto';
-            contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
-            contentDiv.style.position = 'relative';
+            // コンテンツの設定
+            this.content = document.createElement('div');
+            this.content.innerHTML = content;
+            this.content.style.background = 'rgba(255, 255, 255, 0.6)';
+            this.content.style.padding = '5px';
+            this.content.style.borderRadius = '5px';
+            this.content.style.fontSize = '12px';
+            this.content.style.pointerEvents = 'auto';
+            this.content.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+            this.content.style.position = 'relative';
 
-            // 中央揃えを追加
-            contentDiv.style.textAlign = 'center';
-
-            // タイトルをスタイリングして追加
-            titles.forEach((title, index) => {
-              const span = document.createElement('span');
-              span.textContent = title;
-              span.style.backgroundColor = '#ffff00';
-              span.style.padding = '2px 4px';
-              span.style.borderRadius = '3px';
-              contentDiv.appendChild(span);
-              if (index < titles.length - 1) {
-                contentDiv.appendChild(document.createTextNode(', '));
-              }
-            });
-
-            const lineBreak = document.createElement('br');
-            contentDiv.appendChild(lineBreak);
-
-            // ストリートビューの画像を作成
-            const streetViewImage = document.createElement('img');
-            streetViewImage.src =
-              'https://maps.googleapis.com/maps/api/streetview?' +
-              'size=200x100' +
-              '&location=' +
-              this.position.lat() +
-              ',' +
-              this.position.lng() +
-              '&key=' +
-              this.apiKey;
-            streetViewImage.alt = 'Street View Image';
-            streetViewImage.style.display = 'block';
-            streetViewImage.style.margin = '8px auto 0 auto';
-            streetViewImage.style.width = '200px';
-            streetViewImage.style.height = '100px';
-            streetViewImage.style.cursor = 'pointer';
-            streetViewImage.style.borderRadius = '3px';
-            streetViewImage.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
-
-            streetViewImage.addEventListener('click', (e) => {
-              e.stopPropagation();
-              onStreetView();
-            });
-
-            contentDiv.appendChild(streetViewImage);
-
+            // ピンに向けた矢印を作成
             const arrow = document.createElement('div');
             arrow.style.position = 'absolute';
-            arrow.style.bottom = '-6px';
+            arrow.style.bottom = '-10px';
             arrow.style.left = '50%';
             arrow.style.transform = 'translateX(-50%)';
             arrow.style.width = '0';
             arrow.style.height = '0';
-            arrow.style.borderLeft = '5px solid transparent';
-            arrow.style.borderRight = '5px solid transparent';
-            arrow.style.borderTop = '8px solid rgba(255, 255, 255, 0.9)';
+            arrow.style.borderLeft = '6px solid transparent';
+            arrow.style.borderRight = '6px solid transparent';
+            arrow.style.borderTop = '10px solid rgba(255, 255, 255, 0.8)';
 
-            contentDiv.appendChild(arrow);
-            this.containerDiv.appendChild(contentDiv);
+            this.content.appendChild(arrow);
+            this.containerDiv.appendChild(this.content);
           }
 
           onAdd() {
@@ -175,7 +94,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             if (position) {
               this.containerDiv.style.left = position.x + 'px';
               this.containerDiv.style.top = position.y + 'px';
-              this.containerDiv.style.transform = 'translate(-50%, -150%)';
+              this.containerDiv.style.transform = 'translate(-50%, -250%)';
             }
           }
 
@@ -185,71 +104,45 @@ const MapComponent: React.FC<MapComponentProps> = ({
             }
           }
 
+          // InfoWindow を閉じるメソッド
           close() {
             this.setMap(null);
           }
         }
 
         if (!mapRef.current) {
-          mapRef.current = new google.maps.Map(
-            document.getElementById('map') as HTMLElement,
-            {
-              center: coordinateArray[0]
-                ? { lat: coordinateArray[0].lat, lng: coordinateArray[0].lng }
-                : { lat: 0, lng: 0 },
-              zoom: 5,
-              fullscreenControl: false, // マップ自体の全画面ボタンを無効化
-              mapTypeControl: false,
-              streetViewControl: true, // ストリートビューコントロールを有効化
-            }
-          );
-
-          // ストリートビューの全画面ボタンを無効化
-          const streetView = mapRef.current.getStreetView();
-          streetView.setOptions({
-            fullscreenControl: false, // 全画面ボタンを無効化
-            // 他のオプションも必要に応じて設定できます
+          // マップを初期化
+          mapRef.current = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+            center: coordinates[0] || { lat: 0, lng: 0 },
+            zoom: 5,
           });
         }
 
-        // 既存のマーカーをクリア
+        // 既存のマーカーを削除
         markersRef.current.forEach((marker) => marker.setMap(null));
         markersRef.current = [];
 
-        // 新しいマーカーを追加
-        coordinateArray.forEach((coord) => {
+        // マーカーを追加
+        coordinates.forEach((coord) => {
           const marker = new google.maps.Marker({
             position: { lat: coord.lat, lng: coord.lng },
             map: mapRef.current!,
-            title: coord.words.join(', '),
-            icon: iconPath,
-          }) as MarkerWithWords;
+            title: coord.title.join(', '), // マーカーのタイトルは結合した文字列
+            icon: iconPath, // 通常時のアイコンを初期設定
+          });
 
-          // カスタムプロパティとして単語を設定
-          marker.words = coord.words;
-
+          // マーカークリック時のイベントリスナーを追加
           marker.addListener('click', () => {
-            setCurrentSelectedTitles(coord.words);
+            setCurrentSelectedTitles(coord.title);
 
+            // 既存の InfoWindow を閉じる
             if (infoWindowRef.current) {
-              (infoWindowRef.current as CustomInfoWindow).close();
+              // (infoWindowRef.current as any).close();
+              close();
             }
 
-            infoWindowRef.current = new CustomInfoWindow(
-              marker.getPosition()!,
-              coord.words,
-              () => {
-                const streetView = mapRef.current!.getStreetView();
-                streetView.setPosition(marker.getPosition()!);
-                streetView.setPov({
-                  heading: 270,
-                  pitch: 0,
-                });
-                streetView.setVisible(true);
-              },
-              mapRef.current!,
-              apiKey
-            );
+            // 新しい CustomInfoWindow を作成
+            infoWindowRef.current = new CustomInfoWindow(marker.getPosition()!, `<div>${coord.title.join(', ')}</div>`);
 
             infoWindowRef.current.setMap(mapRef.current!);
 
@@ -271,71 +164,84 @@ const MapComponent: React.FC<MapComponentProps> = ({
           markersRef.current.push(marker);
         });
 
-        // 地図の範囲を調整
-        if (coordinateArray.length > 0) {
+        // マップの範囲を調整
+        if (coordinates.length > 0) {
           const bounds = new google.maps.LatLngBounds();
-          coordinateArray.forEach((coord) => {
+          coordinates.forEach((coord) => {
             bounds.extend({ lat: coord.lat, lng: coord.lng });
           });
           mapRef.current.fitBounds(bounds);
         }
       })
       .catch((e) => {
-        console.error('Failed to load Google Maps API:', e);
+        console.error('Google Maps APIの読み込みに失敗しました:', e);
       });
-  }, [coordinateArray, iconPath, selectedIconPath, apiKey]); // Added apiKey to dependencies
+  }, [coordinates, iconPath, selectedIconPath]);
 
-  // searchTerm の変更を処理（部分一致も含む）
+  // 検索語が送信されたときに一致するタイトルを探して選択
   useEffect(() => {
-    const trimmedSearchTerm = searchTerm.trim().toLowerCase();
-
-    if (trimmedSearchTerm === '') {
+    if (searchTerm.trim() === '') {
       setCurrentSelectedTitles([]);
       resetMarkers();
       return;
     }
 
-    // 現在選択されているタイトルを設定
-    setCurrentSelectedTitles([searchTerm]);
+    // 検索語と一致する座標をすべて取得
+    const matchedCoordinates = coordinates.filter((coord) =>
+      coord.title.some((t) => t.toLowerCase() === searchTerm.trim().toLowerCase())
+    );
 
-    // すべてのマーカーをチェック
-    markersRef.current.forEach((marker) => {
-      const words = marker.words || [];
-      const isMatch = words.some(
-        (word) =>
-          word.toLowerCase() === trimmedSearchTerm ||
-          word.toLowerCase().includes(trimmedSearchTerm)
-      );
-      if (isMatch) {
-        google.maps.event.trigger(marker, 'click');
-      }
-    });
-  }, [searchTerm, searchKey]);
+    if (matchedCoordinates.length > 0) {
+      const matchedTitles = matchedCoordinates.flatMap((coord) => coord.title);
+      setCurrentSelectedTitles(matchedTitles);
 
-  // 選択されたタイトルに基づいてマーカーを更新
+      matchedCoordinates.forEach((matchedCoord) => {
+        // マーカーを見つけてクリックイベントをプログラム的にトリガー
+        const markerToSelect = markersRef.current.find((marker) => {
+          const title = marker.getTitle();
+          if (!title) return false;
+          return title.split(', ').some((t) => matchedCoord.title.includes(t));
+        });
+
+        if (markerToSelect) {
+          google.maps.event.trigger(markerToSelect, 'click');
+        }
+      });
+    } else {
+      // 一致する座標がない場合、選択をクリア
+      setCurrentSelectedTitles([]);
+      resetMarkers();
+    }
+  }, [searchTerm, searchKey]); // searchKey を依存配列に追加
+
+  // 選択されたタイトルに基づいてマーカーのアイコンとアニメーションを更新
   useEffect(() => {
     markersRef.current.forEach((marker) => {
-      const words = marker.words || [];
-      const isSelected = words.some((word) =>
-        currentSelectedTitles
-          .map((ct) => ct.toLowerCase())
-          .includes(word.toLowerCase())
-      );
+      const title = marker.getTitle();
+      if (!title) {
+        // title が null の場合はスキップ
+        return;
+      }
+
+      const markerTitles = title.split(', ');
+      const isSelected = markerTitles.some((t) => currentSelectedTitles.includes(t));
 
       if (isSelected) {
-        marker.setIcon(selectedIconPath);
-        marker.setAnimation(google.maps.Animation.BOUNCE);
+        marker.setIcon(selectedIconPath); // 選択時のアイコンに変更
+        marker.setAnimation(google.maps.Animation.BOUNCE); // アニメーションを開始
 
+        // アニメーションは一度だけ実行
         setTimeout(() => {
           marker.setAnimation(null);
-        }, 1400);
+        }, 1400); // 1400ms後に停止（約2回バウンド）
       } else {
-        marker.setIcon(iconPath);
-        marker.setAnimation(null);
+        marker.setIcon(iconPath); // 通常時のアイコンに戻す
+        marker.setAnimation(null); // アニメーションを停止
       }
     });
   }, [currentSelectedTitles, iconPath, selectedIconPath]);
 
+  // マーカーのリセット関数
   const resetMarkers = () => {
     markersRef.current.forEach((marker) => {
       marker.setIcon(iconPath);
@@ -343,17 +249,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
     });
   };
 
-  return (
-    <>
-      <div id="map" className="custom-map" style={{ width: '100%', height: '100vh' }} />
-      <style jsx global>{`
-        /* Zoom ControlとStreet View Controlの位置を調整 */
-        .custom-map .gm-bundled-control-on-bottom {
-          bottom: 35% !important;
-        }
-      `}</style>
-    </>
-  );
+  return <div id="map" style={{ width: '100%', height: '400px' }} />;
 };
 
 export default MapComponent;
