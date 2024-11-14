@@ -7,7 +7,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 const SpeakPage = () => {
   const { isLoaded } = useUser();
@@ -52,6 +52,7 @@ const SpeakPage = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster />
       {/* Header */}
       <Header title="Let's speak Japanese" />
       <main className="container mx-auto px-4 pt-8 pb-24">

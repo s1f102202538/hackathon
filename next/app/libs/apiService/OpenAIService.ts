@@ -5,16 +5,37 @@ export default class OpenAIService {
     apiKey: `${process.env.OPENAI_API_KEY}`,
   });
 
+  private static readonly MAX_ATTEMPTS = 3;
+
   public static async Ask(content: string): Promise<string[][]> {
-    const completion = await this.openai.chat.completions.create({
-      messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
-      model: 'gpt-4o-mini',
-    });
-    const answer = completion.choices[0].message?.content;
-    if (answer === null) {
-      throw new Error('ChatGPT Response not incloud answer');
+    let wordsArray = null;
+    let attempts = 0;
+
+    while (attempts < this.MAX_ATTEMPTS) {
+      const completion = await this.openai.chat.completions.create({
+        messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
+        model: 'gpt-4o-mini',
+      });
+
+      const answer = completion.choices[0].message?.content;
+      if (!answer) {
+        throw new Error('ChatGPTの応答に回答が含まれていません');
+      }
+
+      wordsArray = this.createWordsArray(answer);
+      // 偶数のリストが取得できたら、break
+      if (wordsArray !== null) {
+        break;
+      }
+
+      attempts++;
     }
-    return this.createWordsArray(answer);
+
+    if (!wordsArray) {
+      throw new Error('正しい単語リストを取得できませんでした。');
+    }
+
+    return wordsArray;
   }
 
   // TODO プロンプトの改良
@@ -26,11 +47,11 @@ export default class OpenAIService {
 回答: '池袋', '行きたい', 'いけぶくろ', 'いきたい'
 
 ・例文2
-英文 「明後日、日本に友達が来るので空港で待ち合わせに最適な場所を教えてください」 を '明後日','友達','日本','来る','会う','場所','教えて' と単語抽出し
+英文 「明後日、日本に友達が来るので空港で待ち合わせに最適な場所を教えてください」 を '明後日','友達','日本','来る','会う','場所','教えて' と助詞を除いても日本語の文として自然になるように単語抽出し
 回答: '明後日','友達','日本','来る','会う','場所','教えて','あさって','ともだち','にほん','くる','あう','ばしょ','おしえて'
 
 ・例文3
-英文 「ピラティスやりたいから場所を教えて」を 'ピラティス', 'やりたい', '場所', '教えて' と単語抽出し
+英文 「ピラティスやりたいから場所を教えて」を 'ピラティス', 'やりたい', '場所', '教えて' と助詞を除いても日本語の文として自然になるように単語抽出し
 回答: 'ピラティス', 'やりたい', '場所', '教えて', 'ぴらてぃす', 'やりたい', 'ばしょ', 'おしえて'
 
 ・条件
@@ -42,7 +63,7 @@ export default class OpenAIService {
   'OO', 'OO', 'oo', 'oo'
      このように必ず一つの意味区切りでカンマをつけること
                       ↓
-  4.リストの数は必ず偶数にすること。つまり、前半と後半が同じ数だけあること。
+  4.絶対にリストの数は必ず偶数にすること。つまり、前半と後半が同じ数だけあること。
                       ↓
   5.例文回答を絶対に表示しないこと(回答:を含めないこと)
 ・文章
@@ -51,13 +72,13 @@ ${content}
     return prompt;
   }
 
-  private static createWordsArray(answer: string): string[][] {
+  private static createWordsArray(answer: string): string[][] | null {
     const wordsArray = answer.replace(/\s+/g, '').split(/,|、/);
     console.log(wordsArray);
+
     // 要素数が偶数か確認
     if (wordsArray.length % 2 !== 0) {
-      console.error('要素数が奇数です。もう一度試してください。');
-      return [];
+      return null;
     }
 
     // 配列を半分に分割
