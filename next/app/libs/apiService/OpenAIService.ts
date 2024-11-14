@@ -8,7 +8,7 @@ export default class OpenAIService {
   private static readonly MAX_ATTEMPTS = 3;
 
   public static async Ask(content: string): Promise<string[][]> {
-    let wordsArray: string[][] | null = null;
+    let wordsArray = null;
     let attempts = 0;
 
     while (attempts < this.MAX_ATTEMPTS) {
@@ -24,7 +24,7 @@ export default class OpenAIService {
 
       wordsArray = this.createWordsArray(answer);
       // 偶数のリストが取得できたら、break
-      if (wordsArray) {
+      if (wordsArray !== null) {
         break;
       }
 
@@ -43,8 +43,9 @@ export default class OpenAIService {
     const prompt = `
 以下に回答例を提示します
 ・例文1
-英文 「池袋に行きたい」 を '池袋','行きたい' と助詞を除いても日本語の文として自然になるように単語抽出し
+英文 「池袋に行きたい」 を '池袋','行きたい' と単語抽出し
 回答: '池袋', '行きたい', 'いけぶくろ', 'いきたい'
+
 ・例文2
 英文 「明後日、日本に友達が来るので空港で待ち合わせに最適な場所を教えてください」 を '明後日','友達','日本','来る','会う','場所','教えて' と助詞を除いても日本語の文として自然になるように単語抽出し
 回答: '明後日','友達','日本','来る','会う','場所','教えて','あさって','ともだち','にほん','くる','あう','ばしょ','おしえて'
@@ -54,13 +55,13 @@ export default class OpenAIService {
 回答: 'ピラティス', 'やりたい', '場所', '教えて', 'ぴらてぃす', 'やりたい', 'ばしょ', 'おしえて'
 
 ・条件
-  1. 文章から単語を文意が通じる文法で抽出(いつもありがとう、例文はよく見てね)
+  1. 文章から単語を文意が通じる日本語の文法で抽出(いつもありがとう、例文はよく見てね)
                       ↓
-  2. 回答は以下のフォーマットに従う、
-     ただし前半は抽出したもの漢字/ひらがな/カタカナをそのまま表示し、後半はそれらのひらがなのみを出力してください。
+  2. 前半に抽出した単語をそのまま表示、後半は抽出した単語のひらがなを出力してください。
                       ↓
-  3. 'OO', 'OO', 'oo', 'oo'
-     このように必ず一つの意味区切りでカンマをつけること。一つの単語ごとにクォーテーションをつけること
+  3. 回答は以下のフォーマットに従う
+  'OO', 'OO', 'oo', 'oo'
+     このように必ず一つの意味区切りでカンマをつけること
                       ↓
   4.絶対にリストの数は必ず偶数にすること。つまり、前半と後半が同じ数だけあること。
                       ↓
