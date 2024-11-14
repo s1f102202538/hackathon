@@ -16,11 +16,9 @@ const SpeakPage = () => {
   const [usedLang, setUsedLang] = useState<string | null>(null);
   const { isSignedIn, userId } = useAuth();
 
-  console.log('speakpages: ', usedLang);
-
   useEffect(() => {
     const checkLanguage = async () => {
-      if (isLoaded) {
+      if (isLoaded && userId) {
         try {
           const response = await axios.post('/api/user/get', {
             clientId: userId,

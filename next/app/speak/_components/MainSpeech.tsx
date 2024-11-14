@@ -155,7 +155,7 @@ const MainSpeech = () => {
             setSelectedLang('en-US');
           }
         } else {
-          console.error('User or user language not found');
+          console.log('User or user language not found');
         }
       } catch (error) {
         console.error('Error fetching user language:', error);
