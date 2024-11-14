@@ -22,6 +22,7 @@ export default class OpenAIService {
     const prompt = `
 以下に回答例を提示します
 ・例文1
+
 英文 「池袋に行きたい」 を '池袋','行きたい' と単語抽出し
 回答: '池袋', '行きたい', 'いけぶくろ', 'いきたい'
 ・例文2
