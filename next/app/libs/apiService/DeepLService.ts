@@ -39,7 +39,7 @@ export default class DeepLService {
   }
 
   private static createTranslateWordsArray(translateText: string): string[] {
-    const wordsArray = translateText.split(',');
+    const wordsArray = translateText.replace(/\s+/g, '').split(/,|、|，/);
     return wordsArray;
   }
 

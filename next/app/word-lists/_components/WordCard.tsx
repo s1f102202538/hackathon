@@ -13,8 +13,8 @@ const WordCard = ({ wordWithCount, onSelect }: WordCardProps) => (
   >
     <div className="flex justify-between items-center">
       <div>
-        <h2 className="text-2xl mb-1 font-bold text-gray-800">{wordWithCount.word.ja.replace(/"/g, '')}</h2>
-        <p className="text-gray-600">{wordWithCount.word.userLang.replace(/"/g, '')}</p>
+        <h2 className="text-2xl mb-1 font-bold text-gray-800">{wordWithCount.word.ja}</h2>
+        <p className="text-gray-600">{wordWithCount.word.userLang}</p>
       </div>
       <div className="flex items-center gap-4">
         <span className="bg-cyan-100 text-cyan-800 px-3 py-1 rounded-full text-sm font-medium">
@@ -22,7 +22,7 @@ const WordCard = ({ wordWithCount, onSelect }: WordCardProps) => (
         </span>
         <button
           className="text-cyan-500 hover:text-cyan-600 hover:bg-cyan-100 transition-colors rounded-full p-2"
-          aria-label={`Play pronunciation of ${wordWithCount.word.ja.replace(/"/g, '')}`}
+          aria-label={`Play pronunciation of ${wordWithCount.word.ja}`}
         >
           <PlayCircle className="h-6 w-6" />
         </button>

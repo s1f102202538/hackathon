@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-export function useEnSpeechRecognition() {
+export function useSpeechRecognition(selectedLang: string) {
   const [isRecording, setIsRecording] = useState(false);
   const [text, setText] = useState<string>('');
   const [transcript, setTranscript] = useState<string>('');
@@ -10,12 +10,12 @@ export function useEnSpeechRecognition() {
     if (typeof window !== 'undefined') {
       const recognitionInstance = new webkitSpeechRecognition();
       // 要検討
-      recognitionInstance.lang = 'en-US';
+      recognitionInstance.lang = selectedLang;
       recognitionInstance.continuous = true;
       recognitionInstance.interimResults = true;
       setRecognition(recognitionInstance);
     }
-  }, []);
+  }, [selectedLang]);
 
   useEffect(() => {
     if (!recognition) return;
@@ -25,7 +25,7 @@ export function useEnSpeechRecognition() {
       recognition.stop();
       setText('');
     }
-  }, [isRecording]);
+  }, [isRecording, recognition]);
 
   useEffect(() => {
     if (!recognition) return;
