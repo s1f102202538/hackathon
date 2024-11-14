@@ -5,12 +5,13 @@ export default class OpenAIService {
     apiKey: `${process.env.OPENAI_API_KEY}`,
   });
 
-  public static async Ask(content: string): Promise<string[][]> {
-    let wordsArray: string[][] = [];
-    let attempts = 0;
-    const maxAttempts = 3; // 最大試行回数を設定
+  private static readonly MAX_ATTEMPTS = 3;
 
-    while (attempts < maxAttempts) {
+  public static async Ask(content: string): Promise<string[][]> {
+    let wordsArray: string[][] | null = null;
+    let attempts = 0;
+
+    while (attempts < this.MAX_ATTEMPTS) {
       const completion = await this.openai.chat.completions.create({
         messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
         model: 'gpt-4o-mini',
@@ -22,17 +23,16 @@ export default class OpenAIService {
       }
 
       wordsArray = this.createWordsArray(answer);
-      if (wordsArray.length > 0) {
-        // 偶数のリストが取得できた場合、ループを抜ける
+      // 偶数のリストが取得できたら、break
+      if (wordsArray) {
         break;
       }
 
       attempts++;
-      console.warn(`試行 ${attempts} 回目: リストの要素数が奇数でした。再試行します。`);
     }
 
-    if (wordsArray.length === 0) {
-      throw new Error('リストの要素数が偶数になりませんでした。');
+    if (!wordsArray) {
+      throw new Error('正しい単語リストを取得できませんでした。');
     }
 
     return wordsArray;
@@ -71,13 +71,13 @@ ${content}
     return prompt;
   }
 
-  private static createWordsArray(answer: string): string[][] {
+  private static createWordsArray(answer: string): string[][] | null {
     const wordsArray = answer.replace(/\s+/g, '').split(/,|、/);
     console.log(wordsArray);
+
     // 要素数が偶数か確認
     if (wordsArray.length % 2 !== 0) {
-      console.error('要素数が奇数です。もう一度試してください。');
-      return [];
+      return null;
     }
 
     // 配列を半分に分割
