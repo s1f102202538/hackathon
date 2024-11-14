@@ -8,7 +8,7 @@ export default class OpenAIService {
   private static readonly MAX_ATTEMPTS = 3;
 
   public static async Ask(content: string): Promise<string[][]> {
-    let wordsArray: string[][] | null = null;
+    let wordsArray = null;
     let attempts = 0;
 
     while (attempts < this.MAX_ATTEMPTS) {
@@ -24,7 +24,7 @@ export default class OpenAIService {
 
       wordsArray = this.createWordsArray(answer);
       // 偶数のリストが取得できたら、break
-      if (wordsArray) {
+      if (wordsArray !== null) {
         break;
       }
 
