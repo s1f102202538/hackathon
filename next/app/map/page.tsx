@@ -1,60 +1,89 @@
-'use client';
-
-import React, { useState } from 'react';
-import Header from '../components/layout/header/Header';
+"use client";
+import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/navbar/Navbar';
-import WordUsageStats from './components/WordUsageStats';
-import WordSearchInput from './components/WordSearchInput';
+import WordStatsSearch from './components/WordSearchInput';
+import axios from 'axios';
 import dynamic from 'next/dynamic';
+import { useAuth } from '@clerk/nextjs';
 
 const MapComponent = dynamic(() => import('./components/Map'), { ssr: false });
 
 const HomePage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState<string>(''); // ステートを searchTerm に変更
-  const [searchKey, setSearchKey] = useState<number>(0); // searchKey ステートを追加
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [searchKey, setSearchKey] = useState<number>(0);
+  const [coordinates, setCoordinates] = useState<{
+    word: string[][];
+    Latitude: string[];
+    Longitude: string[];
+  } | null>(null);
 
-  // 座標データを title を配列として保持
-  const coordinates = [
-    { Latitude: 40.8244, Longitude: 140.74, title: ['駅', 'どこ'] },
-    { Latitude: 39.7036, Longitude: 141.1527, title: ['新宿', '行きたい'] },
-    { Latitude: 38.2682, Longitude: 140.8694, title: ['池袋', '行きたい'] },
-    { Latitude: 37.7503, Longitude: 140.4676, title: ['温泉', '休む'] },
-    { Latitude: 36.3418, Longitude: 140.4468, title: ['海', '見たい'] },
-    { Latitude: 35.6895, Longitude: 139.6917, title: ['渋谷', '楽しみ'] },
-    { Latitude: 35.3934, Longitude: 136.7223, title: ['犬山城', '写真'] },
-    { Latitude: 34.6937, Longitude: 135.5023, title: ['大阪城', '行く'] },
-    { Latitude: 34.3966, Longitude: 132.4596, title: ['広島', '平和'] },
-    { Latitude: 33.5902, Longitude: 130.4017, title: ['福岡', 'ラーメン'] },
-  ].map((coord) => ({
-    lat: coord.Latitude,
-    lng: coord.Longitude,
-    title: coord.title, // title を配列として保持
-  }));
+  const { userId } = useAuth();
 
+  async function fetchWordsLocation() {
+    try {
+      const response = await axios.post('/api/user/words-location/get-list', {
+        clientId: userId,
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Error fetching words location:', error);
+      return null;
+    }
+  }
+
+  useEffect(() => {
+    async function getWordsLocation() {
+      const data = await fetchWordsLocation();
+      if (data) {
+        setCoordinates({
+          Latitude: data.wordsLocationList.map(
+            (location: {
+              lat: string;
+              lon: string;
+              words: { romaji: string }[];
+            }) => location.lat
+          ),
+          Longitude: data.wordsLocationList.map(
+            (location: {
+              lat: string;
+              lon: string;
+              words: { romaji: string }[];
+            }) => location.lon
+          ),
+          word: data.wordsLocationList.map(
+            (location: {
+              lat: number;
+              lon: number;
+              words: { romaji: string }[];
+            }) => location.words.map((word) => word['romaji'])
+          ),
+        });
+      }
+    }
+    getWordsLocation();
+  }, [userId]);
   const iconPath = '/images/mapicon_pin_red1_32x32.png';
   const selectedIconPath = '/images/mapicon_pin_blue1_32x32.png';
 
+  console.log(coordinates,searchTerm,searchKey)
+
   const handleSearch = (searchTerm: string) => {
-    setSearchTerm(searchTerm); // 検索語をステートに設定
-    setSearchKey((prevKey) => prevKey + 1); // searchKey をインクリメント
+    setSearchTerm(searchTerm);
+    setSearchKey((prevKey) => prevKey + 1);
   };
 
   return (
-    <div style={{ backgroundColor: '#F0F8FF' }}>
-      <Header title="Word Map" />
-      <div style={{ marginTop: '20px', marginBottom: '20px' }}>
-        <WordSearchInput placeholder="おはよう" onSearch={handleSearch} />
-      </div>
-      <WordUsageStats />
-      <div style={{ marginBottom: '80px' }}>
-        <MapComponent
-          coordinates={coordinates}
-          iconPath={iconPath}
-          selectedIconPath={selectedIconPath}
-          searchTerm={searchTerm} // searchTerm をプロパティとして渡す
-          searchKey={searchKey} // searchKey をプロパティとして渡す
-        />
-      </div>
+    <div style={{height:'100%', width:'100%'}}>
+        <WordStatsSearch onSearch={handleSearch} />
+        {coordinates && (
+          <MapComponent
+            coordinates={coordinates}
+            iconPath={iconPath}
+            selectedIconPath={selectedIconPath}
+            searchTerm={searchTerm}
+            searchKey={searchKey}
+          />
+        )}
       <Navbar />
     </div>
   );
