@@ -17,11 +17,11 @@ const categories = ['あ', 'か', 'さ', 'た', 'な', 'は', 'ま', 'や', 'ら
 const getCategoryForWord = (word: string): string => {
   const firstChar = word.charAt(1);
   if ('あいうえお'.includes(firstChar)) return 'あ';
-  if ('かきくけこ'.includes(firstChar)) return 'か';
-  if ('さしすせそ'.includes(firstChar)) return 'さ';
-  if ('たちつてと'.includes(firstChar)) return 'た';
+  if ('かきくけこがぎぐげご'.includes(firstChar)) return 'か';
+  if ('さしすせそざじずぜぞ'.includes(firstChar)) return 'さ';
+  if ('たちつてとだぢづでど'.includes(firstChar)) return 'た';
   if ('なにぬねの'.includes(firstChar)) return 'な';
-  if ('はひふへほ'.includes(firstChar)) return 'は';
+  if ('はひふへほばびぶべぼぱぴぷぺぽ'.includes(firstChar)) return 'は';
   if ('まみむめも'.includes(firstChar)) return 'ま';
   if ('やゆよ'.includes(firstChar)) return 'や';
   if ('らりるれろ'.includes(firstChar)) return 'ら';
