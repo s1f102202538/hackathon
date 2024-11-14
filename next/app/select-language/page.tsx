@@ -1,48 +1,82 @@
-// next/app/select-language/page.tsx
 'use client';
 
-import React, { useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import React, { useEffect, useState } from 'react';
+import { useAuth, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const LanguageSelector: React.FC = () => {
-  const { user } = useUser();
+  const { user, isLoaded } = useUser();
+  const { isSignedIn, userId } = useAuth();
   const router = useRouter();
   const [selectedLang, setSelectedLang] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // 言語設定をしているユーザーが/select-languageに入ろうとしたら、speakにリダイレクト
+  useEffect(() => {
+    const checkLanguage = async () => {
+      if (isLoaded && isSignedIn) {
+        try {
+          const response = await axios.post('/api/user/get', {
+            clientId: userId,
+          });
+
+          const usedLang = response.data.speakLang;
+
+          if (usedLang) {
+            toast.success('すでに言語が設定されています。');
+            router.push('/speak');
+          } else {
+            setLoading(false);
+          }
+        } catch (error) {
+          console.error('Error fetching usedLang:', error);
+          setError('言語設定の取得中にエラーが発生しました。');
+          setLoading(false);
+        }
+      }
+    };
+    checkLanguage();
+  }, [isLoaded, isSignedIn, router, userId]);
 
   const handleLanguageSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedLang(event.target.value);
     setError(null);
-    setSuccessMessage(null); // 前回のメッセージをリセット
+    setSuccessMessage(null);
   };
 
+  // 言語を設定する前に確認を入れる
   const handleSave = async () => {
     if (!selectedLang) {
       setError('言語を選択してください。');
-      console.log('Save attempted without selecting a language.');
+      return;
+    }
+
+    // 確認ダイアログを表示
+    const isConfirmed = window.confirm(
+      `選択した言語は「${selectedLang}」です。\n選択した言語は変更できません。\n保存してもよろしいですか？`
+    );
+
+    if (!isConfirmed) {
+      // ユーザーがキャンセルを選択した場合、処理を中断
       return;
     }
 
     try {
-      console.log(`Saving language: ${selectedLang}`);
       setIsSaving(true);
       const response = await axios.post('/api/save-language', {
-        clientId: user?.id, // Clerk のユーザー ID を送信
+        clientId: user?.id,
         usedLang: selectedLang,
       });
 
       if (response.status === 200) {
-        console.log('Language saved successfully.');
         setSuccessMessage('言語設定が保存されました。');
-        console.log('保存された言語-----→', selectedLang);
-        // 保存成功後に /speak にリダイレクト
         router.push('/speak');
       } else {
-        console.log('Failed to save language. Status:', response.status);
         setError('言語設定の保存に失敗しました。再度お試しください。');
       }
     } catch (err) {
@@ -53,10 +87,18 @@ const LanguageSelector: React.FC = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <p>読み込み中...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-md rounded px-8 py-6 w-full max-w-md">
-        <h1 className="text-2xl font-semibold mb-6 text-center">言語を選択してください</h1>
+        <h2 className="text-center">言語を選択してください</h2>
         <div className="mb-6">
           <label htmlFor="language-select" className="block text-gray-700 font-medium mb-2">
             言語
@@ -86,10 +128,10 @@ const LanguageSelector: React.FC = () => {
         {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
         <button
           className={`w-full px-6 py-3 rounded bg-blue-500 text-white ${
-            isSaving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
+            isSaving || !selectedLang ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'
           }`}
           onClick={handleSave}
-          disabled={isSaving}
+          disabled={isSaving || !selectedLang}
         >
           {isSaving ? '保存中...' : '保存'}
         </button>

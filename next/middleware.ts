@@ -1,25 +1,27 @@
-// import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-
-// const isProtectedRoute = createRouteMatcher(['/speak', '/word-lists', '/map']);
-
-// export default clerkMiddleware(async (auth, req) => {
-//   if (isProtectedRoute(req)) await auth.protect();
-// });
-
-// export const config = {
-//   matcher: [
-//     // Skip Next.js internals and all static files, unless found in search params
-//     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-//     // Always run for API routes
-//     '/(api|trpc)(.*)',
-//   ],
-// };
-
-// middleware.ts
-// middleware.ts
 import { NextResponse } from 'next/server';
-import { clerkMiddleware, ClerkMiddlewareAuth } from '@clerk/nextjs/server';
+import { clerkMiddleware, ClerkMiddlewareAuth, createRouteMatcher } from '@clerk/nextjs/server';
 import type { NextRequest } from 'next/server';
+
+// 保護されたルートを定義
+const isProtectedRoute = createRouteMatcher(['/speak', '/select-language', '/word-lists', '/map']);
+
+// NEXT_REDIRECT エラーの型定義
+type NextRedirectError = {
+  digest: string;
+  clerk_digest: string;
+  returnBackUrl: string;
+};
+
+// NEXT_REDIRECT エラーを識別する型ガード
+function isNextRedirectError(error: unknown): error is NextRedirectError {
+  if (typeof error === 'object' && error !== null) {
+    const err = error as Record<string, unknown>;
+    return (
+      typeof err.digest === 'string' && typeof err.clerk_digest === 'string' && typeof err.returnBackUrl === 'string'
+    );
+  }
+  return false;
+}
 
 export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextRequest) => {
   try {
@@ -27,30 +29,36 @@ export default clerkMiddleware(async (auth: ClerkMiddlewareAuth, req: NextReques
     const userId = authObject.userId;
     const nextUrl = req.nextUrl;
 
-    // console.log('Auth Object:', authObject);
     console.log('User ID:', userId);
-    // console.log('Requested Path:', nextUrl.pathname);
 
-    // if (!userId) {
-    //   // ユーザーが未認証の場合は /sign-in にリダイレクト
-    //   const signInUrl = new URL('/sign-in', req.url);
-    //   return NextResponse.redirect(signInUrl);
-    // }
+    // 保護されたルートの場合、認証を強制
+    if (isProtectedRoute(req)) await auth.protect();
 
     // バイパスするパスを定義
-    const bypassPaths = ['/select-language', '/speak', '/api', '/sign-in', '/sign-up'];
+    const bypassPaths = ['/sign-in', '/sign-up'];
 
     if (bypassPaths.some((path) => nextUrl.pathname.startsWith(path))) {
       return NextResponse.next();
     }
 
-    // Middleware ではデータベース操作を行わないため、ここではリダイレクトのみ行います
-    // 言語設定の確認はページやAPIルートで行います
+    if (userId && req.nextUrl.pathname === '/') {
+      // ログイン後に'/speak'へリダイレクト
+      return NextResponse.redirect(new URL('/speak', req.url));
+    }
 
+    // ミドルウェアではリダイレクトのみを行い、他の処理はスキップ
     return NextResponse.next();
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Middleware error:', error);
-    return NextResponse.next();
+
+    if (isNextRedirectError(error)) {
+      // NEXT_REDIRECT エラーの場合は再スローして Next.js にリダイレクトさせる
+      throw error;
+    }
+
+    // その他のエラーはエラーページにリダイレクト
+    const errorPage = new URL('/error-page', req.url);
+    return NextResponse.redirect(errorPage);
   }
 });
 

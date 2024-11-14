@@ -20,9 +20,10 @@ type Props = {
 
 const RootLayout = ({ children }: Props) => {
   return (
-    <html lang="ja">
+    <html lang="en">
       <body>
-        <ClerkProvider afterSignInUrl="/speak">
+        {/* <ClerkProvider signInFallbackRedirectUrl="/speak" signUpFallbackRedirectUrl="/speak"> */}
+        <ClerkProvider signInUrl="/speak" signUpUrl="/speak">
           <ClientProvider />
           {children}
         </ClerkProvider>

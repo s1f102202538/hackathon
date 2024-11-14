@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const SpeakPage = () => {
   const { isLoaded } = useUser();
@@ -20,36 +21,32 @@ const SpeakPage = () => {
   useEffect(() => {
     const checkLanguage = async () => {
       if (isLoaded) {
-        if (!isSignedIn) {
-          console.log('User not signed in, redirecting to /sign-in');
-          router.push('/sign-in');
-        } else {
-          try {
-            const response = await axios.post('/api/user/get', {
-              clientId: userId,
-            });
+        try {
+          const response = await axios.post('/api/user/get', {
+            clientId: userId,
+          });
 
-            const usedLang = response.data.speakLang;
+          const usedLang = response.data.speakLang;
 
-            if (!usedLang) {
-              console.log('User language not set, redirecting to /select-language');
-              router.push('/select-language');
-            } else {
-              console.log(`User language: ${usedLang}`);
-              setUsedLang(usedLang);
-            }
-          } catch (error) {
-            console.error('Error fetching usedLang:', error);
-            // 必要に応じてエラーページにリダイレクト
-          } finally {
-            setLoading(false);
+          if (!usedLang) {
+            console.log('User language not set, redirecting to /select-language');
+            toast.success('言語選択に移動します');
+            router.push('/select-language');
+          } else {
+            console.log(`User language: ${usedLang}`);
+            setUsedLang(usedLang);
           }
+        } catch (error) {
+          console.error('Error fetching usedLang:', error);
+          // 必要に応じてエラーページにリダイレクト
+        } finally {
+          setLoading(false);
         }
       }
     };
 
     checkLanguage();
-  }, [isLoaded, isSignedIn, router]);
+  }, [isLoaded, isSignedIn, router, userId]);
 
   if (loading) {
     return <div>Loading...</div>;
