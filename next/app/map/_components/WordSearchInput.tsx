@@ -64,6 +64,7 @@ const CustomIndicatorsContainer = (
             alignItems: 'center',
             justifyContent: 'center',
             cursor: 'pointer',
+            zIndex: '1000',
             overflow: 'hidden', // 円形にするため
             touchAction: 'auto' // タッチイベントを有効にする
           }}

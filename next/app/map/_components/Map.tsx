@@ -167,9 +167,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             this.containerDiv = document.createElement('div');
             this.containerDiv.style.position = 'absolute';
-            this.containerDiv.style.pointerEvents = 'auto';
-            this.containerDiv.style.zIndex = '9999';
-            this.containerDiv.style.touchAction = 'auto'; // タッチイベントを有効にする
+            this.containerDiv.style.pointerEvents = 'none';
 
 
             const contentDiv = document.createElement('div');
@@ -181,7 +179,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
             contentDiv.style.borderRadius = '5px';
             contentDiv.style.fontSize = fontSize;
             contentDiv.style.fontWeight = 'bold';
-            contentDiv.style.pointerEvents = 'auto'; // 内部要素もクリック可能
             contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
             contentDiv.style.position = 'relative';
             contentDiv.style.textAlign = 'center';
@@ -258,6 +255,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             streetViewImage.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
             streetViewImage.style.pointerEvents = 'auto'; // クリック可能
             streetViewImage.style.touchAction = 'auto'; // タッチイベントを有効にする
+            streetViewImage.style.zIndex = '10';
 
             streetViewImage.addEventListener('click', (e) => {
               e.stopPropagation();
@@ -281,6 +279,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             commentButton.style.fontSize = fontSize;
             commentButton.style.pointerEvents = 'auto'; // クリック可能
             commentButton.style.touchAction = 'auto'; // タッチイベントを有効にする
+            commentButton.style.zIndex = '10';
 
             commentButton.addEventListener('click', (e) => {
               e.stopPropagation();
