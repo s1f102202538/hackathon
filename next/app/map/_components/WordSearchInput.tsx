@@ -1,10 +1,14 @@
-'use client';
-
 import React, { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import axios from 'axios';
 
-import Select, { StylesConfig, components, OnChangeValue, MenuListProps, ClearIndicatorProps } from 'react-select';
+import Select, {
+  StylesConfig,
+  components,
+  OnChangeValue,
+  MenuListProps,
+  ClearIndicatorProps,
+} from 'react-select';
 
 interface OptionType {
   value: string;
@@ -25,7 +29,10 @@ const CustomMenuList = (props: MenuListProps<OptionType, false>) => {
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
         {(Array.isArray(props.children) ? props.children : [props.children]).map(
           (child: React.ReactNode, index: number) => (
-            <div key={index} style={{ width: '50%', boxSizing: 'border-box', padding: '5px' }}>
+            <div
+              key={index}
+              style={{ width: '50%', boxSizing: 'border-box', padding: '5px' }}
+            >
               {child}
             </div>
           )
@@ -36,7 +43,9 @@ const CustomMenuList = (props: MenuListProps<OptionType, false>) => {
 };
 
 // Custom ClearIndicator componentのスタイルを調整
-const CustomClearIndicator = (props: ClearIndicatorProps<OptionType, false>) => {
+const CustomClearIndicator = (
+  props: ClearIndicatorProps<OptionType, false>
+) => {
   return (
     <components.ClearIndicator {...props}>
       <span
@@ -145,8 +154,11 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
       const data = await fetchWords();
       if (data && data.wordsLocationList) {
         const allWords = data.wordsLocationList.flatMap(
-          (location: { lat: number; lon: number; words: { userLang: string }[] }) =>
-            location.words.map((word) => word.userLang)
+          (location: {
+            lat: number;
+            lon: number;
+            words: { userLang: string }[];
+          }) => location.words.map((word) => word.userLang)
         );
 
         const selectedWords = getRandomWords(allWords, 10);

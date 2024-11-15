@@ -1,15 +1,14 @@
-'use client';
-
+"use client";
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/navbar/Navbar';
+import WordStatsSearch from './_components/WordSearchInput';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
 import { WordsLocation } from 'app/types/WordsLocation';
 
-const MapComponent = dynamic(() => import('./_components/MapComponent'), { ssr: false });
-const WordStatsSearch = dynamic(() => import('./_components/WordSearchInput'), { ssr: false });
+const MapComponent = dynamic(() => import('./_components/Map'), { ssr: false });
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -44,8 +43,8 @@ const HomePage: React.FC = () => {
           word: data.wordsLocationList.map((location: WordsLocation) =>
             location.words.map((word: Word) => ({
               userLang: word.userLang,
-              ja: word.ja, // 既存の日本語フィールド
-              romaji: word.romaji, // 追加: ローマ字フィールド
+              ja: word.ja,          // 既存の日本語フィールド
+              romaji: word.romaji,  // 追加: ローマ字フィールド
             }))
           ),
         });
@@ -57,7 +56,7 @@ const HomePage: React.FC = () => {
   const iconPath = '/images/mapicon_pin_red1_32x32.png';
   const selectedIconPath = '/images/mapicon_pin_blue1_32x32.png';
 
-  console.log('Coordinates:', coordinates, 'Search Term:', searchTerm, 'Search Key:', searchKey);
+  console.log("Coordinates:", coordinates, "Search Term:", searchTerm, "Search Key:", searchKey);
 
   const handleSearch = (searchTerm: string) => {
     setSearchTerm(searchTerm);
