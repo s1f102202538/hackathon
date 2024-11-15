@@ -28,7 +28,7 @@ const Navbar = () => {
           }`}
         >
           <BookMarked className="w-6 h-6" />
-          <span className="text-xs mt-1">Menu</span>
+          <span className="text-xs mt-1">Dictionary</span>
         </Link>
 
         {/* Speakリンク */}
@@ -60,7 +60,7 @@ const Navbar = () => {
           }`}
         >
           <MapPin className="w-6 h-6" />
-          <span className="text-xs mt-1">Places</span>
+          <span className="text-xs mt-1">Map</span>
         </Link>
       </div>
     </nav>
