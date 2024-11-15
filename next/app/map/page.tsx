@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
 import { WordsLocation } from 'app/types/WordsLocation';
+import Loading from 'app/components/Loading';
 
 const MapComponent = dynamic(() => import('./_components/Map'), { ssr: false });
 
@@ -43,8 +44,8 @@ const HomePage: React.FC = () => {
           word: data.wordsLocationList.map((location: WordsLocation) =>
             location.words.map((word: Word) => ({
               userLang: word.userLang,
-              ja: word.ja,          // 既存の日本語フィールド
-              romaji: word.romaji,  // 追加: ローマ字フィールド
+              ja: word.ja,
+              romaji: word.romaji,
             }))
           ),
         });
@@ -52,6 +53,7 @@ const HomePage: React.FC = () => {
     }
     getWordsLocation();
   }, [userId]);
+
 
   const iconPath = '/images/mapicon_pin_red1_32x32.png';
   const selectedIconPath = '/images/mapicon_pin_blue1_32x32.png';
@@ -69,7 +71,7 @@ const HomePage: React.FC = () => {
         <div style={{ position: 'absolute', width: '100%' }}>
           <WordStatsSearch onSearch={handleSearch} />
         </div>
-        {coordinates && (
+        {coordinates ? (
           <MapComponent
             coordinates={coordinates}
             iconPath={iconPath}
@@ -77,6 +79,8 @@ const HomePage: React.FC = () => {
             searchTerm={searchTerm}
             searchKey={searchKey}
           />
+        ) : (
+          <Loading />
         )}
         <Navbar />
       </div>
