@@ -4,8 +4,6 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Word } from 'app/types/Word';
 
-
-
 // 型定義にカスタムプロパティを追加
 declare global {
   interface MarkerWithWords extends google.maps.Marker {
@@ -55,7 +53,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const infoWindowRef = useRef<CustomInfoWindowType | null>(null);
   const [currentSelectedTitles, setCurrentSelectedTitles] = useState<string[]>([]);
 
-  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_APIKEY || '';
+  const apiKey = `${process.env.NEXT_PUBLIC_GOOGLE_APIKEY}` || '';
 
   // 座標をオブジェクトの配列に変換
   const coordinateArray = useMemo(() => {
