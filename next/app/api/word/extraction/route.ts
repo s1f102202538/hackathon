@@ -25,10 +25,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
     // 特殊文字などを除外
-    const text = params.content.replace(/[!#&?]/g, '');
+    const text = params.content.replace(/[!#&?.。]/g, '');
     // ユーザーの入力を一度日本語に翻訳
     const translateContent = await DeepLService.TranslatorText(text, 'JA');
-    // const translateContent = await DeepLService.TranslatorText(params.content, 'JA');
     // 単語抽出
     const kanji = await OpenAIService.Ask(translateContent);
     // 抽出した単語をユーザーの言語に翻訳
@@ -47,7 +46,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
       };
 
       // 抽出した単語をDBに保存
-      UserWordsService.Create(params.clientId, word);
+      await UserWordsService.Create(params.clientId, word);
       wordsList.push(word);
     }
     return NextResponse.json({ wordsList }, { status: 200 });

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<{ status: num
   try {
     const params: SaveWordsLocationParams = await req.json();
 
-    UserWordsLocationService.Create(params.clientId, params.words, params.lat, params.lon);
+    await UserWordsLocationService.Create(params.clientId, params.words, params.lat, params.lon);
 
     return NextResponse.json({ status: 200 });
   } catch (error) {
