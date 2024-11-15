@@ -1,7 +1,7 @@
 // <next/app/speak/_components/SpeechSection.tsx>
 'use client';
 
-import { Mic, Square, Languages, SquareChevronRight } from 'lucide-react';
+import { Mic, Square, Languages, ArrowRightLeft } from 'lucide-react';
 import React from 'react';
 import { Input } from '../../components/ui/input';
 import { Translations } from '../../libs/i18n/translations'; // 翻訳データの型をインポート
@@ -84,7 +84,7 @@ const SpeechSection: React.FC<SpeechSectionProps> = ({
           {handleTranslate && (
             <button
               onClick={handleTranslate}
-              className="flex-shrink-0 bg-transparent hover:bg-sky-500 text-sky-500 hover:text-white font-semibold py-2 px-3 rounded-md flex items-center ml-2"
+              className="flex-shrink-0 mx-none bg-sky-500 text-white hover:bg-sky-700 font-semibold py-2 px-3 rounded-md flex items-center ml-1"
               aria-label="Translate"
             >
               {isLoading && (
@@ -98,7 +98,7 @@ const SpeechSection: React.FC<SpeechSectionProps> = ({
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
                 </svg>
               )}
-              <SquareChevronRight className="w-5 h-5" />
+              <ArrowRightLeft className="w-5 h-5" />
             </button>
           )}
         </div>
