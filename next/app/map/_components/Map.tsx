@@ -37,7 +37,9 @@ interface MapComponentProps {
 const JAPAN_CENTER = { lat: 36.2048, lng: 138.2529 };
 const JAPAN_ZOOM = 5;
 const SINGLE_MARKER_ZOOM = 11; // 単一マーカー時のズームレベルを追加
-
+const isMobile = window.innerWidth <= 768; // モバイル用の画面幅の例
+const fontSize = isMobile ? '12px' : '15px';
+const jaFontSize = isMobile ? '11px' : '13px';
 // CustomInfoWindowの型を定義（googleを参照しない）
 interface CustomInfoWindowType {
   close(): void;
@@ -113,7 +115,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             contentDiv.style.background = 'rgba(240, 240, 240)';
             contentDiv.style.padding = '5px'; // パディングを調整
             contentDiv.style.borderRadius = '5px';
-            contentDiv.style.fontSize = '12px'; // フォントサイズを小さく
+            contentDiv.style.fontSize = fontSize; // フォントサイズを小さく
             contentDiv.style.fontWeight = 'bold';
             contentDiv.style.pointerEvents = 'auto';
             contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
@@ -140,35 +142,37 @@ const MapComponent: React.FC<MapComponentProps> = ({
               span.style.backgroundColor = '#ffff99';
               span.style.color = '#000000';
               span.style.borderRadius = '3px';
-              span.style.fontSize = '10px';
               span.style.display = 'inline-flex';
               span.style.alignItems = 'center';
               span.style.justifyContent = 'center';
               span.style.whiteSpace = 'nowrap';
+              span.style.fontSize = fontSize;
 
               // userLang と開き括弧
-              const userLangText = document.createTextNode(cleanUserLang + ' : ');
+              const userLangText = document.createTextNode(cleanUserLang + ':(');
+              const endOfuserLangText = document.createTextNode(')');
 
               // ruby要素を作成
               const ruby = document.createElement('ruby');
-              ruby.style.fontSize = '9px'; // フォントサイズを小さく（変更箇所）
+              ruby.style.fontSize = fontSize;
 
               const jaText = document.createElement('span');
               jaText.textContent = cleanJa;
-              jaText.style.fontSize = '8px'; // 日本語のフォントサイズを小さく（変更箇所）
+              jaText.style.fontSize = jaFontSize;
 
               ruby.appendChild(jaText);
 
               if (cleanRomaji) {
                 const rt = document.createElement('rt');
                 rt.textContent = cleanRomaji;
-                rt.style.fontSize = '8px'; // フリガナのフォントサイズを小さく（変更箇所）
+                rt.style.fontSize = jaFontSize;
                 ruby.appendChild(rt);
               }
 
               // spanに要素を追加
               span.appendChild(userLangText);
               span.appendChild(ruby);
+              span.appendChild(endOfuserLangText);
 
               wordsContainer.appendChild(span);
             });
@@ -237,7 +241,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             if (position) {
               this.containerDiv.style.left = position.x + 'px';
               this.containerDiv.style.top = position.y + 'px';
-              this.containerDiv.style.transform = 'translate(-50%, -120%)';
+              this.containerDiv.style.transform = 'translate(-50%, -125%)';
             }
           }
 
