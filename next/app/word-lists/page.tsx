@@ -68,13 +68,16 @@ const WordLists = () => {
 
   const groupedWords = groupWordsByCategory(words);
 
+  // serchQueryに入力がある時、全単語から検索
   const filteredWords =
-    groupedWords[selectedCategory]?.filter(
-      (wordWithCount) =>
-        wordWithCount.word.ja.includes(searchQuery) ||
-        wordWithCount.word.userLang.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        wordWithCount.word.romaji.toLowerCase().includes(searchQuery.toLowerCase())
-    ) || [];
+    searchQuery.trim() !== ''
+      ? words.filter(
+          (wordWithCount) =>
+            wordWithCount.word.ja.includes(searchQuery) ||
+            wordWithCount.word.userLang.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            wordWithCount.word.romaji.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      : groupedWords[selectedCategory] || [];
 
   return (
     <div className="flex flex-col h-screen bg-gradient-to-br from-blue-50 to-cyan-50">
@@ -88,7 +91,6 @@ const WordLists = () => {
               <Button
                 key={category}
                 variant={selectedCategory === category ? 'default' : 'outline'}
-                // className="h-10 min-w-[2.5rem] text-sm font-bold" // ボタンの高さや幅を調整
                 className={`h-10 min-w-[2.5rem] text-sm font-bold
                     ${selectedCategory === category ? 'bg-sky-500 text-white' : 'bg-white text-sky-500 border border-sky-500'}`}
                 onClick={() => setSelectedCategory(category)}
