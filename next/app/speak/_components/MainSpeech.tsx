@@ -14,7 +14,7 @@ import { Volume2 } from 'lucide-react';
 import { Translations } from '../../libs/i18n/translations'; // 翻訳データの型をインポート
 
 type MainSpeechProps = {
-  usedLang: string | null;
+  usedLang: string; // string に限定
   translations?: Translations[string]; // オプショナルな翻訳データ
 };
 
@@ -33,7 +33,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   const [inputTextJ, setInputTextJ] = useState<string>('');
   const [translatedText, setTranslatedText] = useState<string>('');
 
-  const { isSignedIn, userId } = useAuth(); // useAuth から userId を取得
+  const { isSignedIn, userId } = useAuth();
 
   // 観光客の音声認識が終了したときに text を inputText に反映する
   useEffect(() => {
@@ -172,7 +172,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   }, [translatedText, usedLang]);
 
   return (
-    <div className="flex flex-col space-y-4 p-4">
+    <div className="flex flex-col space-y-4 py-4 px-2">
       {/* Tourist セクション */}
       <SpeechSection
         title="You"
@@ -186,7 +186,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
         isLoading={false} // 必要に応じて設定
       >
         {/* TranslationCardsの表示 */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid md:grid-cols-3 grid-cols-2 gap-1 mt-2">
           {wordsArray.map((word, index) => (
             <TranslationCard key={index} word={word} />
           ))}

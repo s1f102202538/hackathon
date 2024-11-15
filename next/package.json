@@ -42,6 +42,7 @@
   "devDependencies": {
     "@clerk/types": "^4.30.0",
     "@types/googlemaps": "^3.43.3",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
