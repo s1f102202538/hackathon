@@ -10,13 +10,12 @@ export default class UserWordsService {
       const duplicate = await prisma.word.findFirst({
         where: { userId: user.id, ja: word.ja },
       });
-
       // 既にdbにwordが保存されている場合countを増やす
       if (duplicate !== null) {
         await prisma.word.update({
           where: { id: duplicate.id },
           data: {
-            count: duplicate.count++,
+            count: duplicate.count + 1,
           },
         });
 

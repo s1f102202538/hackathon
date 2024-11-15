@@ -3,40 +3,49 @@
 import { useJaSpeechRecognition } from '../../hooks/useJaSpeechRecognition';
 import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { useState, useEffect, useCallback } from 'react';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import TranslationCard from './TranslationCard';
 import SpeechSection from './SpeechSection';
 import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
-import { GetUserResponse } from 'app/api/user/get/route';
+import toast from 'react-hot-toast';
+import { debounce } from 'lodash';
+import { Volume2, Loader2 } from 'lucide-react'; // Loader2 をインポート
+import { Translations } from '../../libs/i18n/translations'; // 翻訳データの型をインポート
 
-const MainSpeech = () => {
-  const [selectedLang, setSelectedLang] = useState<string>('');
+type MainSpeechProps = {
+  usedLang: string; // string に限定
+  translations?: Translations[string]; // オプショナルな翻訳データ
+};
+
+const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   // 観光客用の音声認識フック
-  const { isRecording, setIsRecording, text, transcript } = useSpeechRecognition(selectedLang);
+  const { isRecording, setIsRecording, text, transcript } = useSpeechRecognition(usedLang);
+
   // 日本人用の音声認識フック
   const { isRecordingJ, setIsRecordingJ, textJ, transcriptJ } = useJaSpeechRecognition();
 
   // 観光客用の状態
-  const [isEditing, setIsEditing] = useState(false);
-  const [inputText, setInputText] = useState('Where is the Hachikoumae');
+  const [inputText, setInputText] = useState<string>('');
   const [wordsArray, setWordsArray] = useState<Word[]>([]);
 
   // 日本人用の状態
-  const [isEditingJ, setIsEditingJ] = useState(false);
-  const [inputTextJ, setInputTextJ] = useState('');
-  const [translatedText, setTranslatedText] = useState('');
+  const [inputTextJ, setInputTextJ] = useState<string>('');
+  const [translatedText, setTranslatedText] = useState<string>('');
 
-  const { isSignedIn, userId } = useAuth(); // useAuth から userId を取得
+  const { isSignedIn, userId } = useAuth();
 
-  // 観光客の音声認識が終了したときに `text` を `inputText` に反映する
+  // ローディング状態の追加
+  const [isTranslateLoading, setIsTranslateLoading] = useState<boolean>(false);
+
+  // 観光客の音声認識が終了したときに text を inputText に反映する
   useEffect(() => {
     if (!isRecording && text) {
       setInputText(text);
     }
   }, [isRecording, text]);
 
-  // 日本人の音声認識が終了したときに `textJ` を `inputTextJ` に反映する
+  // 日本人の音声認識が終了したときに textJ を inputTextJ に反映する
   useEffect(() => {
     if (!isRecordingJ && textJ) {
       setInputTextJ(textJ);
@@ -62,49 +71,47 @@ const MainSpeech = () => {
       });
       console.log(response);
       const cleanedWordsArray = response.data.wordsList.map((word: Word) => ({
-        // ja: word.ja.replace(/"/g, ''), // 日本語文字列から二重引用符を削除
-        // userLang: word.userLang.replace(/"/g, ''),
-        // romaji: word.romaji.replace(/"/g, ''),
-        ja: word.ja, // 日本語文字列から二重引用符を削除
-        userLang: word.userLang,
-        romaji: word.romaji,
+        ja: word.ja.replace(/["']/g, ''), // 日本語文字列から二重引用符と単一引用符を削除
+        userLang: word.userLang.replace(/["']/g, ''),
+        romaji: word.romaji.replace(/["']/g, ''),
       }));
       setWordsArray(cleanedWordsArray);
       console.log(cleanedWordsArray);
     } catch (error) {
-      console.error('Error fetching translation:', error);
+      toast.error('Push translate button again');
+      console.error(error);
     }
   }, [isSignedIn, userId, inputText]);
 
   // 日本人用の翻訳API呼び出し関数
-  const translateJapanese = useCallback(async (jaText: string) => {
-    if (!jaText) {
-      console.error('No Japanese text to translate');
-      return;
-    }
+  const translateJapanese = useCallback(
+    async (jaText: string) => {
+      if (!jaText) {
+        console.error('No Japanese text to translate');
+        return;
+      }
 
-    try {
-      const response = await axios.post('/api/translation', {
-        text: jaText,
-        clientId: userId,
-      });
+      try {
+        const response = await axios.post('/api/translation', {
+          text: jaText,
+          clientId: userId,
+        });
 
-      setTranslatedText(response.data.text);
-      console.log('Translated Text:', response.data.text);
-    } catch (error) {
-      console.error('Error translating text:', error);
-    }
-  }, []);
+        setTranslatedText(response.data.text);
+        console.log('Translated Text:', response.data.text);
+      } catch (error) {
+        console.error('Error translating text:', error);
+      }
+    },
+    [userId]
+  );
 
   // 観光客のTranslateボタンのクリックハンドラー
-  const handleTranslateClick = useCallback(() => {
-    fetchWords();
+  const handleTranslateClick = useCallback(async () => {
+    setIsTranslateLoading(true); // ローディング開始
+    await fetchWords();
+    setIsTranslateLoading(false); // ローディング終了
   }, [fetchWords]);
-
-  // 日本人のTranslateボタンのクリックハンドラー
-  const handleTranslateClickJ = useCallback(() => {
-    translateJapanese(inputTextJ);
-  }, [translateJapanese, inputTextJ]);
 
   // 日本人側の録音ボタンのクリックハンドラー
   const handleRecordingJClick = useCallback(() => {
@@ -119,7 +126,7 @@ const MainSpeech = () => {
           const { latitude, longitude } = position.coords;
 
           try {
-            await axios.post('/api/words-location/save', {
+            await axios.post('/api/words-location/save/location', {
               clientId: userId,
               words: wordsArray,
               lat: latitude.toString(),
@@ -137,61 +144,64 @@ const MainSpeech = () => {
     }
   }, [isRecordingJ, userId, wordsArray, setIsRecordingJ]);
 
+  // 日本人セクションの入力テキストが変更されたときに自動的に翻訳を実行
+  const debouncedTranslateJapanese = useCallback(
+    debounce((jaText: string) => {
+      translateJapanese(jaText);
+    }, 500), // 500ms の遅延
+    [translateJapanese]
+  );
+
   useEffect(() => {
-    const fetchUserLanguage = async () => {
-      try {
-        const response: AxiosResponse<GetUserResponse> = await axios.post('/api/user/get', {
-          clientId: userId,
-        });
-        const user = response.data.user;
-
-        if (user && user.usedLang) {
-          // DeepLService の convertTranslateLanguages を使用して言語コードを取得
-          const langCode = response.data.speakLang;
-          if (langCode !== null) {
-            console.log('langCode:', langCode);
-            setSelectedLang(langCode);
-          } else {
-            setSelectedLang('en-US');
-          }
-        } else {
-          console.log('User or user language not found');
-        }
-      } catch (error) {
-        console.error('Error fetching user language:', error);
-      }
-    };
-
-    if (isSignedIn) {
-      fetchUserLanguage();
+    if (inputTextJ.trim() !== '') {
+      debouncedTranslateJapanese(inputTextJ);
+    } else {
+      setTranslatedText('');
     }
-  }, [isSignedIn, userId]);
 
-  // selectedLang が取得されるまで待つ
-  // if (!selectedLang) {
-  //   return <div>Loading...</div>;
-  // }
+    // クリーンアップ関数でデバウンスをキャンセル
+    return () => {
+      debouncedTranslateJapanese.cancel();
+    };
+  }, [inputTextJ, debouncedTranslateJapanese]);
+
+  // 日本語テキストを音声再生する関数
+  const speakTranslatedText = useCallback(() => {
+    if ('speechSynthesis' in window && translatedText) {
+      const utterance = new SpeechSynthesisUtterance(translatedText);
+      utterance.lang = usedLang || 'ja-JP'; // usedLang を使用、デフォルトは 'ja-JP'
+      window.speechSynthesis.speak(utterance);
+    } else {
+      console.error('このブラウザはSpeechSynthesis APIに対応していないか、翻訳テキストがありません。');
+    }
+  }, [translatedText, usedLang]);
 
   return (
-    <div className="flex flex-col space-y-4 p-4">
+    <div className="flex flex-col space-y-4 py-4 px-2">
       {/* Tourist セクション */}
       <SpeechSection
         title="You"
         isRecording={isRecording}
         toggleRecording={() => setIsRecording((prev) => !prev)}
         transcript={transcript}
-        isEditing={isEditing}
-        toggleEditing={() => setIsEditing((prev) => !prev)}
         inputText={inputText}
         setInputText={setInputText}
-        handleTranslate={handleTranslateClick}
+        handleTranslate={handleTranslateClick} // Translateボタンを表示
+        translations={translations} // 翻訳データを渡す
+        isLoading={isTranslateLoading} // ローディング状態を渡す
       >
-        {/* TranslationCardsの表示 */}
-        <div className="grid grid-cols-2 gap-2">
-          {wordsArray.map((word, index) => (
-            <TranslationCard key={index} word={word} />
-          ))}
-        </div>
+        {/* TranslationCardsの表示またはローディングスピナー */}
+        {isTranslateLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <Loader2 className="animate-spin h-8 w-8 text-blue-500" />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 grid-cols-2 gap-1 mt-2">
+            {wordsArray.map((word, index) => (
+              <TranslationCard key={index} word={word} />
+            ))}
+          </div>
+        )}
       </SpeechSection>
 
       {/* Japanese セクション */}
@@ -200,16 +210,28 @@ const MainSpeech = () => {
         isRecording={isRecordingJ}
         toggleRecording={handleRecordingJClick}
         transcript={transcriptJ}
-        isEditing={isEditingJ}
-        toggleEditing={() => setIsEditingJ((prev) => !prev)}
         inputText={inputTextJ}
         setInputText={setInputTextJ}
-        handleTranslate={handleTranslateClickJ}
+        // handleTranslate を渡さないのでTranslateボタンは表示されません
+        translations={translations} // 翻訳データを渡す（必要に応じて）
+        isLoading={false} // 必要に応じて設定
       >
         {/* 翻訳結果の表示 */}
-        <div className="mt-2 p-2 border rounded-md bg-gray-50">
-          <p className="text-sm text-gray-800">Translation:</p>
-          <p className="text-base font-semibold text-blue-600">{translatedText}</p>
+        <div className="mt-2 p-2 border rounded-md bg-gray-50 flex items-center justify-between">
+          <div>
+            <p className="text-sm text-gray-800">Translation:</p>
+            <p className="text-base font-semibold text-blue-600">{translatedText}</p>
+          </div>
+          {/* 音声再生ボタン */}
+          {translatedText && (
+            <button
+              onClick={speakTranslatedText}
+              aria-label="Speak Translation"
+              className="ml-4 text-sky-500 hover:text-sky-700 focus:outline-none"
+            >
+              <Volume2 className="w-6 h-6" />
+            </button>
+          )}
         </div>
       </SpeechSection>
     </div>
