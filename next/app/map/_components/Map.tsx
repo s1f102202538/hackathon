@@ -534,13 +534,12 @@ const MapComponent: React.FC<MapComponentProps> = ({
                     <textarea
                       value={editedComment}
                       onChange={(e) => setEditedComment(e.target.value)}
-                      style={{ width: '100%', height: '100px', marginTop: '16px' }}
+                      style={{ width: '100%', height: '100px', marginTop: '16px', border: '2px solid #000', borderRadius: '5px'}}
                     />
                   ) : (
                     <>
                       {drawerData.comment && drawerData.comment.trim() !== '' && (
                         <div style={{ marginTop: '16px' }}>
-                          <strong>Comment:</strong>
                           <p>{drawerData.comment}</p>
                         </div>
                       )}
