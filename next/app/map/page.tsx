@@ -6,14 +6,9 @@ import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
+import { WordsLocation } from 'app/types/WordsLocation';
 
 const MapComponent = dynamic(() => import('./_components/Map'), { ssr: false });
-
-interface WordLocation {
-  lat: string;
-  lon: string;
-  words: Word[];
-}
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -43,9 +38,9 @@ const HomePage: React.FC = () => {
       const data = await fetchWordsLocation();
       if (data) {
         setCoordinates({
-          Latitude: data.wordsLocationList.map((location: WordLocation) => location.lat),
-          Longitude: data.wordsLocationList.map((location: WordLocation) => location.lon),
-          word: data.wordsLocationList.map((location: WordLocation) =>
+          Latitude: data.wordsLocationList.map((location: WordsLocation) => location.lat),
+          Longitude: data.wordsLocationList.map((location: WordsLocation) => location.lon),
+          word: data.wordsLocationList.map((location: WordsLocation) =>
             location.words.map((word: Word) => ({
               userLang: word.userLang,
               ja: word.ja,          // 既存の日本語フィールド

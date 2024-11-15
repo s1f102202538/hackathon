@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Word } from 'app/types/Word';
 
+
+
 // 型定義にカスタムプロパティを追加
 declare global {
   interface MarkerWithWords extends google.maps.Marker {
