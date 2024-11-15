@@ -10,7 +10,7 @@ import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
-import { Volume2 } from 'lucide-react';
+import { Volume2, Loader2 } from 'lucide-react'; // Loader2 をインポート
 import { Translations } from '../../libs/i18n/translations'; // 翻訳データの型をインポート
 
 type MainSpeechProps = {
@@ -34,6 +34,9 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   const [translatedText, setTranslatedText] = useState<string>('');
 
   const { isSignedIn, userId } = useAuth();
+
+  // ローディング状態の追加
+  const [isTranslateLoading, setIsTranslateLoading] = useState<boolean>(false);
 
   // 観光客の音声認識が終了したときに text を inputText に反映する
   useEffect(() => {
@@ -104,8 +107,10 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   );
 
   // 観光客のTranslateボタンのクリックハンドラー
-  const handleTranslateClick = useCallback(() => {
-    fetchWords();
+  const handleTranslateClick = useCallback(async () => {
+    setIsTranslateLoading(true); // ローディング開始
+    await fetchWords();
+    setIsTranslateLoading(false); // ローディング終了
   }, [fetchWords]);
 
   // 日本人側の録音ボタンのクリックハンドラー
@@ -121,7 +126,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
           const { latitude, longitude } = position.coords;
 
           try {
-            await axios.post('/api/words-location/save', {
+            await axios.post('/api/words-location/save/location', {
               clientId: userId,
               words: wordsArray,
               lat: latitude.toString(),
@@ -183,14 +188,20 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
         setInputText={setInputText}
         handleTranslate={handleTranslateClick} // Translateボタンを表示
         translations={translations} // 翻訳データを渡す
-        isLoading={false} // 必要に応じて設定
+        isLoading={isTranslateLoading} // ローディング状態を渡す
       >
-        {/* TranslationCardsの表示 */}
-        <div className="grid md:grid-cols-3 grid-cols-2 gap-1 mt-2">
-          {wordsArray.map((word, index) => (
-            <TranslationCard key={index} word={word} />
-          ))}
-        </div>
+        {/* TranslationCardsの表示またはローディングスピナー */}
+        {isTranslateLoading ? (
+          <div className="flex justify-center items-center h-32">
+            <Loader2 className="animate-spin h-8 w-8 text-blue-500" />
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 grid-cols-2 gap-1 mt-2">
+            {wordsArray.map((word, index) => (
+              <TranslationCard key={index} word={word} />
+            ))}
+          </div>
+        )}
       </SpeechSection>
 
       {/* Japanese セクション */}

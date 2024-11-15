@@ -38,9 +38,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const wordsList: Word[] = [];
     for (let i = 0; i < kanji.length; i++) {
       const word: Word = {
-        ja: hiragana[i],
-        userLang: userLang[i],
-        romaji: romaji[i],
+        ja: hiragana[i].replace(/"|'/g, ''),
+        userLang: userLang[i].replace(/"|'/g, '').toLowerCase(),
+        romaji: romaji[i].replace(/"|'/g, '').toLowerCase(),
       };
 
       // 抽出した単語をDBに保存

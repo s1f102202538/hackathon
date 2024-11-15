@@ -1,4 +1,5 @@
-"use client";
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/navbar/Navbar';
 import WordStatsSearch from './_components/WordSearchInput';
@@ -54,11 +55,10 @@ const HomePage: React.FC = () => {
     getWordsLocation();
   }, [userId]);
 
-
   const iconPath = '/images/mapicon_pin_red1_32x32.png';
   const selectedIconPath = '/images/mapicon_pin_blue1_32x32.png';
 
-  console.log("Coordinates:", coordinates, "Search Term:", searchTerm, "Search Key:", searchKey);
+  console.log('Coordinates:', coordinates, 'Search Term:', searchTerm, 'Search Key:', searchKey);
 
   const handleSearch = (searchTerm: string) => {
     setSearchTerm(searchTerm);

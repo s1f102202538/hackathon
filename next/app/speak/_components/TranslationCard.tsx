@@ -1,3 +1,5 @@
+// /next/app/speak/_components/TranslationCard.tsx
+
 import { Volume2 } from 'lucide-react';
 import { Word } from 'app/types/Word';
 
@@ -17,10 +19,13 @@ const TranslationCard = ({ word }: TranslationCardProps) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow pl-2 pt-2 hover:bg-sky-400" onClick={() => speakText(word.ja)}>
+    <div
+      className="bg-white rounded-xl shadow pl-2 pt-2 hover:bg-sky-400 cursor-pointer"
+      onClick={() => speakText(word.ja)}
+    >
       <div className="text-b">
         <p className="text-black/50 text-xs">{word.userLang}</p>
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <p className="text-lg text-gray-800">{word.romaji}</p>
           <Volume2 className="text-sky-500 hover:text-sky-700 mr-2" />
         </div>
