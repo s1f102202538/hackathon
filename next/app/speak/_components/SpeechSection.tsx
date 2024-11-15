@@ -2,8 +2,7 @@
 
 import { Mic, Languages, ArrowRightLeft } from 'lucide-react';
 import React from 'react';
-import { Input } from '../../components/ui/input';
-import { Translations } from '../../libs/i18n/translations'; // 翻訳データの型をインポート
+import { Translations } from '../../libs/i18n/translations';
 
 type SpeechSectionProps = {
   title: string;
@@ -12,10 +11,10 @@ type SpeechSectionProps = {
   transcript: string;
   inputText: string;
   setInputText: (text: string) => void;
-  handleTranslate?: () => void; // オプションプロパティ
+  handleTranslate?: () => void;
   children: React.ReactNode;
   isLoading?: boolean;
-  translations?: Translations[string]; // オプショナルな翻訳データ
+  translations?: Translations[string];
 };
 
 const SpeechSection: React.FC<SpeechSectionProps> = ({
@@ -29,7 +28,7 @@ const SpeechSection: React.FC<SpeechSectionProps> = ({
   translations,
 }) => {
   // テキスト入力の変更ハンドラー
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value);
   };
 
@@ -50,7 +49,7 @@ const SpeechSection: React.FC<SpeechSectionProps> = ({
 
       {/* セクションコンテンツ */}
       <div className="bg-white shadow-md p-4 mb-4 rounded-b-xl">
-        {/* Languagesボタン、マイクボタン、Inputフィールドを横並びに */}
+        {/* マイクボタン、Textarea、Translateボタンを横並びに */}
         <div className="flex items-center">
           {/* マイクボタン */}
           <button
@@ -62,19 +61,16 @@ const SpeechSection: React.FC<SpeechSectionProps> = ({
                 : 'bg-gradient-to-r from-sky-400 to-blue-500 shadow-lg shadow-blue-500/50'
             }`}
           >
-            {isRecording ? (
-              <Mic className="w-5 h-5 text-white" /> // 録音中はマイクアイコン
-            ) : (
-              <Mic className="w-5 h-5 text-white" /> // 通常はマイクアイコン
-            )}
+            <Mic className="w-5 h-5 text-white" />
           </button>
 
-          {/* Inputフィールド */}
-          <Input
+          {/* Textarea フィールド */}
+          <textarea
             value={inputText}
             onChange={handleInputChange}
             placeholder={translations?.inputPlaceholder || 'Enter text here...'}
-            className="flex-grow bg-white border border-gray-200 focus:border-blue-500 focus:ring-blue-500 ml-4"
+            className="flex-grow bg-white border border-gray-200 focus:border-blue-500 focus:ring-blue-500 ml-4 p-2 rounded-md resize-none"
+            rows={1}
           />
 
           {/* Translateボタン */}
