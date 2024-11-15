@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-
 import OpenAIService from 'app/libs/apiService/OpenAIService';
 import DeepLService from 'app/libs/apiService/DeepLService';
 import UserWordsService from 'app/libs/userService/UserWordsService';
 import WanakanaService from 'app/libs/WanakanaService';
 import UserService from 'app/libs/userService/UserService';
-import { Word } from 'app/types/Word';
 import GooService from 'app/libs/apiService/GooService';
+import AdjustText from 'app/libs/utility/AdjustText';
+import { Word } from 'app/types/Word';
 
 export type ExtractionWordsParams = {
   clientId: string;
@@ -38,9 +38,9 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const wordsList: Word[] = [];
     for (let i = 0; i < kanji.length; i++) {
       const word: Word = {
-        ja: hiragana[i].replace(/"|'/g, ''),
-        userLang: userLang[i].replace(/"|'/g, '').toLowerCase(),
-        romaji: romaji[i].replace(/"|'/g, '').toLowerCase(),
+        ja: AdjustText(hiragana[i]),
+        userLang: AdjustText(userLang[i]),
+        romaji: AdjustText(romaji[i]),
       };
 
       // 抽出した単語をDBに保存

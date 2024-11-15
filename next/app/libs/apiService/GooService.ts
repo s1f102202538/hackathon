@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { AxiosResponse } from 'axios';
-import SplitText from '../utility/splitText';
+import SplitText from '../utility/SplitText';
 
 export type HiraganaAPIParams = {
   app_id: string;

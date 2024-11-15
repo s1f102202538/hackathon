@@ -1,13 +1,11 @@
 import OpenAI from 'openai';
-import SplitText from '../utility/splitText';
+import SplitText from '../utility/SplitText';
 
 export default class OpenAIService {
   private static readonly openai = new OpenAI({
     baseURL: `${process.env.OPENAI_BASE_URL}`,
     apiKey: `${process.env.OPENAI_API_KEY}`,
   });
-
-  private static readonly MAX_ATTEMPTS = 3;
 
   public static async Ask(content: string): Promise<string[]> {
     const completion = await this.openai.chat.completions.create({
