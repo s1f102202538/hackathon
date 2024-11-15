@@ -246,7 +246,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
               '&key=' +
               this.apiKey;
             streetViewImage.alt = 'ストリートビュー画像';
-            streetViewImage.style.display = 'block';
             streetViewImage.style.margin = '5px auto 0 auto';
             streetViewImage.style.width = '290px';
             streetViewImage.style.height = '100px';
@@ -289,18 +288,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             contentDiv.appendChild(commentButton);
 
-            const arrow = document.createElement('div');
-            arrow.style.position = 'absolute';
-            arrow.style.bottom = '-6px';
-            arrow.style.left = '50%';
-            arrow.style.transform = 'translateX(-50%)';
-            arrow.style.width = '0';
-            arrow.style.height = '0';
-            arrow.style.borderLeft = '5px solid transparent';
-            arrow.style.borderRight = '5px solid transparent';
-            arrow.style.borderTop = '8px solid rgba(240, 240, 240, 0.9)';
-
-            contentDiv.appendChild(arrow);
             this.containerDiv.appendChild(contentDiv);
           }
 
