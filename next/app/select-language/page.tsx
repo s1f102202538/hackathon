@@ -89,11 +89,7 @@ const LanguageSelector: React.FC = () => {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <Loading />
-      </div>
-    );
+    return <Loading />;
   }
 
   return (
@@ -115,7 +111,6 @@ const LanguageSelector: React.FC = () => {
             </option>
             <option value="en-US">英語（米国）</option>
             <option value="en-GB">英語（英国）</option>
-            <option value="ja-JP">日本語</option>
             <option value="fr-FR">フランス語</option>
             <option value="de-DE">ドイツ語</option>
             <option value="es-ES">スペイン語</option>
