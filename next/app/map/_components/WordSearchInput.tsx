@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import axios from 'axios';
-import Select, {StylesConfig,components,OnChangeValue,MenuListProps} from 'react-select';
+import Select, { StylesConfig, components, OnChangeValue, MenuListProps } from 'react-select';
 
 interface OptionType {
   value: string;
@@ -12,15 +12,20 @@ interface WordStatsSearchProps {
   onSearch: (searchTerm: string) => void;
 }
 
-const CustomMenuList= (props: MenuListProps<OptionType, false>) => {
+const CustomMenuList = (props: MenuListProps<OptionType, false>) => {
   return (
     <components.MenuList {...props}>
       <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-        {(Array.isArray(props.children) ? props.children : [props.children]).map((child: React.ReactNode, index: number) => (
-          <div key={index} style={{ width: '25%', boxSizing: 'border-box', padding: '5px' }}>
-            {child}
-          </div>
-        ))}
+        {(Array.isArray(props.children) ? props.children : [props.children]).map(
+          (child: React.ReactNode, index: number) => (
+            <div
+              key={index}
+              style={{ width: '50%', boxSizing: 'border-box', padding: '5px' }}
+            >
+              {child}
+            </div>
+          )
+        )}
       </div>
     </components.MenuList>
   );
@@ -71,6 +76,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
       alignItems: 'center',
       textAlign: 'center',
       fontSize: '12px',
+      wordBreak: 'break-word',
     }),
   };
 
@@ -88,7 +94,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
 
   const getRandomWords = (words: string[], count: number): string[] => {
     const uniqueWords = Array.from(new Set(words)); // 重複を排除
-    console.log(uniqueWords)
+    console.log(uniqueWords);
     if (uniqueWords.length <= count) {
       return uniqueWords;
     }
@@ -104,13 +110,15 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
     const getWordsData = async () => {
       const data = await fetchWords();
       if (data && data.wordsLocationList) {
-        const allWords = data.wordsLocationList.flatMap((location: {
-          lat: number;
-          lon: number;
-          words: { romaji: string }[];
-        }) => location.words.map((word) => word.romaji));
+        const allWords = data.wordsLocationList.flatMap(
+          (location: {
+            lat: number;
+            lon: number;
+            words: { userLang: string }[];
+          }) => location.words.map((word) => word.userLang)
+        );
 
-        const selectedWords = getRandomWords(allWords, 8);
+        const selectedWords = getRandomWords(allWords, 10);
         setRandomWords(selectedWords);
       }
     };
@@ -120,14 +128,20 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
     }
   }, [userId]);
 
-  const options: OptionType[] = randomWords.map((word) => ({
-    value: word,
-    label: word,
-  }));
+  const options: OptionType[] = randomWords.map((word) => {
+    // シングルクオーテーションとダブルクオーテーションを削除
+    const sanitizedWord = word.replace(/["']/g, '');
+    return {
+      value: sanitizedWord,
+      label: sanitizedWord,
+    };
+  });
 
   const handleSubmit = (search: string) => {
-    if (search) {
-      onSearch(search);
+    // シングルクオーテーションとダブルクオーテーションを削除
+    const sanitizedSearch = search.replace(/["']/g, '');
+    if (sanitizedSearch) {
+      onSearch(sanitizedSearch);
     }
   };
 
@@ -142,9 +156,11 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   // `Select` コンポーネントのonChangeハンドラー
   const handleChange = (option: OnChangeValue<OptionType, false>) => {
     if (option) {
-      setSearchTerm(option.value);
-      setInputValue(option.value); // 入力値も更新
-      handleSubmit(option.value);
+      // シングルクオーテーションとダブルクオーテーションを削除
+      const sanitizedValue = option.value.replace(/["']/g, '');
+      setSearchTerm(sanitizedValue);
+      setInputValue(sanitizedValue); // 入力値も更新
+      handleSubmit(sanitizedValue);
     } else {
       setSearchTerm('');
       setInputValue('');
@@ -154,7 +170,9 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
 
   // `Select` コンポーネントのonInputChangeハンドラー
   const handleInputChange = (newValue: string) => {
-    setInputValue(newValue);
+    // シングルクオーテーションとダブルクオーテーションを削除
+    const sanitizedValue = newValue.replace(/["']/g, '');
+    setInputValue(sanitizedValue);
   };
 
   return (
@@ -166,7 +184,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
         }}
         style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}
       >
-        <div style={{ width: '100%', position: 'relative' }} ref={selectRef}>
+        <div style={{ width: '100%', position: 'relative', zIndex: '1' }} ref={selectRef}>
           <Select
             options={options}
             placeholder="単語を検索..."
@@ -180,13 +198,8 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
               MenuList: CustomMenuList,
               DropdownIndicator: () => null, // ドロップダウン矢印を非表示にする
             }}
-            // `Select` コンポーネントがフォーカスされた状態でEnterキーを押したときにのみ動作するように設定
-            // これにより、他のフォーム要素との干渉を防ぎます
-            // ただし、`react-select` のバージョンによっては、`onKeyDown` がサポートされていない場合があります。
-            // その場合は、別の方法でキーイベントをキャッチする必要があります。
           />
         </div>
-        {/* 検索ボタンを削除しました */}
       </form>
     </div>
   );
