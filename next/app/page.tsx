@@ -199,6 +199,19 @@ const Home = () => {
           <div className="flex justify-center space-x-4"></div>
         </section>
       </main>
+
+      <footer className="bg-gray-100 py-4">
+        <div className="container mx-auto flex justify-center">
+          <a href="http://www.goo.ne.jp/" target="_blank" rel="noopener noreferrer">
+            <img
+              src="//u.xgoo.jp/img/sgoo.png"
+              alt="supported by goo"
+              title="supported by goo"
+              className="h-12 md:h-16" // 画像の高さを調整（必要に応じて）
+            />
+          </a>
+        </div>
+      </footer>
     </div>
   );
 };
