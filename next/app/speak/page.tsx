@@ -7,7 +7,8 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, useUser } from '@clerk/nextjs';
 import axios from 'axios';
-import toast from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
+import { translations } from '../libs/i18n/translations';
 
 const SpeakPage = () => {
   const { isLoaded } = useUser();
@@ -24,15 +25,15 @@ const SpeakPage = () => {
             clientId: userId,
           });
 
-          const usedLang = response.data.speakLang;
+          const fetchedUsedLang = response.data.speakLang;
 
-          if (!usedLang) {
+          if (!fetchedUsedLang) {
             console.log('User language not set, redirecting to /select-language');
             toast.success('言語選択に移動します');
             router.push('/select-language');
           } else {
-            console.log(`User language: ${usedLang}`);
-            setUsedLang(usedLang);
+            console.log(`User language: ${fetchedUsedLang}`);
+            setUsedLang(fetchedUsedLang);
           }
         } catch (error) {
           console.error('Error fetching usedLang:', error);
@@ -50,14 +51,20 @@ const SpeakPage = () => {
     return <div>Loading...</div>;
   }
 
+  // usedLang が null の場合は何も表示しない（リダイレクトされているはず）
+  if (!usedLang) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
+      <Toaster />
       {/* Header */}
       <Header title="Let's speak Japanese" />
-      <main className="container mx-auto px-4 pt-8 pb-24">
-        <p>slected language: {usedLang}</p>
-        {/* MainSpeech */}
-        <MainSpeech />
+      <main className="container mx-auto px-1 pt-2 pb-24">
+        <p className="ml-4">{translations[usedLang]?.selectedLanguage}</p>
+        {/* MainSpeech に usedLang と translations を渡す */}
+        <MainSpeech usedLang={usedLang} translations={translations[usedLang]} />
       </main>
       <Navbar />
     </div>

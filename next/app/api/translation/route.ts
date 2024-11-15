@@ -9,16 +9,19 @@ export type TranslateParams = {
 };
 
 export type TranslateResponse = {
-  text: string;
+  text: string | null;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<TranslateResponse>> {
-  const params: TranslateParams = await req.json();
-  const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
-  const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
+  try {
+    const params: TranslateParams = await req.json();
+    const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
+    const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
+    const result = await DeepLService.TranslatorText(params.text, translateLang);
 
-  const result = await DeepLService.TranslatorText(params.text, translateLang);
-  return NextResponse.json({
-    text: result,
-  });
+    return NextResponse.json({ text: result }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected Error in POST /api/translation: ', error);
+    return NextResponse.json({ text: null }, { status: 500 });
+  }
 }

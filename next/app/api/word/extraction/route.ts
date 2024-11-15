@@ -6,6 +6,7 @@ import UserWordsService from 'app/libs/userService/UserWordsService';
 import WanakanaService from 'app/libs/WanakanaService';
 import UserService from 'app/libs/userService/UserService';
 import { Word } from 'app/types/Word';
+import GooService from 'app/libs/apiService/GooService';
 
 export type ExtractionWordsParams = {
   clientId: string;
@@ -19,22 +20,21 @@ export type ExtractionWordsResponse = {
 export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWordsResponse>> {
   try {
     const params: ExtractionWordsParams = await req.json();
+    // Userの言語設定を取得
     const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
-
-    // userUsedLang が null の場合、エラーレスポンスを返す
-    if (!userUsedLang) {
-      return NextResponse.json({ wordsList: null }, { status: 400, statusText: 'User language not set' });
-    }
-
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
+    // ユーザーの入力を一度日本語に翻訳
     const translateContent = await DeepLService.TranslatorText(params.content, 'JA');
-    const array = await OpenAIService.Ask(translateContent);
-    const kanji = array[0];
-    const hiragana = array[1];
+    // 単語抽出
+    const kanji = await OpenAIService.Ask(translateContent);
+    // 抽出した単語をユーザーの言語に翻訳
     const userLang = await DeepLService.TranslatorTextArray(kanji, translateLang);
-    console.log('usrLang------->', userLang);
+    // 抽出した単語をひらがなにする
+    const hiragana = await GooService.getHiraganaTextArray(kanji);
+    // ひらがなをローマ字に変換
     const romaji = await WanakanaService.TextArrayToRomaji(hiragana);
+
     const wordsList: Word[] = [];
     for (let i = 0; i < kanji.length; i++) {
       const word: Word = {
@@ -42,6 +42,8 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
         userLang: userLang[i],
         romaji: romaji[i],
       };
+
+      // 抽出した単語をDBに保存
       UserWordsService.Create(params.clientId, word);
       wordsList.push(word);
     }
