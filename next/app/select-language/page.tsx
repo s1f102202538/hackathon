@@ -59,7 +59,7 @@ const LanguageSelector: React.FC = () => {
 
     // 確認ダイアログを表示
     const isConfirmed = window.confirm(
-      `選択した言語は「${selectedLang}」です。\n選択した言語は変更できません。\n保存してもよろしいですか？`
+      `The selected language is"${selectedLang}". \nThe selected language cannot be changed.\nAre you sure you want to save it?`
     );
 
     if (!isConfirmed) {
@@ -75,14 +75,14 @@ const LanguageSelector: React.FC = () => {
       });
 
       if (response.status === 200) {
-        setSuccessMessage('言語設定が保存されました。');
+        setSuccessMessage('Language settings have been saved.');
         router.push('/speak');
       } else {
-        setError('言語設定の保存に失敗しました。再度お試しください。');
+        setError('Failed to save language settings. Please try again.');
       }
     } catch (err) {
       console.error('Error saving language:', err);
-      setError('言語設定の保存に失敗しました。再度お試しください。');
+      setError('Failed to save language settings. Please try again.');
     } finally {
       setIsSaving(false);
     }
@@ -95,10 +95,10 @@ const LanguageSelector: React.FC = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white shadow-md rounded px-8 py-6 w-full max-w-md">
-        <h2 className="text-center">言語を選択してください</h2>
+        <h2 className="text-center">Select a language</h2>
         <div className="mb-6">
           <label htmlFor="language-select" className="block text-gray-700 font-medium mb-2">
-            言語
+            Language
           </label>
           <select
             id="language-select"
@@ -107,17 +107,17 @@ const LanguageSelector: React.FC = () => {
             className="w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="" disabled>
-              -- 言語を選択 --
+              -- Select Language --
             </option>
-            <option value="en-US">英語（米国）</option>
-            <option value="en-GB">英語（英国）</option>
-            <option value="fr-FR">フランス語</option>
-            <option value="de-DE">ドイツ語</option>
-            <option value="es-ES">スペイン語</option>
-            <option value="zh-CN">中国語（簡体字）</option>
-            <option value="ko-KR">韓国語</option>
-            <option value="it-IT">イタリア語</option>
-            <option value="ru-RU">ロシア語</option>
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="fr-FR">French</option>
+            <option value="de-DE">German</option>
+            <option value="es-ES">Spanish</option>
+            <option value="zh-CN">Chinese (Simplified)</option>
+            <option value="ko-KR">Korean</option>
+            <option value="it-IT">Italian</option>
+            <option value="ru-RU">Russian</option>
           </select>
         </div>
         {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -129,7 +129,7 @@ const LanguageSelector: React.FC = () => {
           onClick={handleSave}
           disabled={isSaving || !selectedLang}
         >
-          {isSaving ? '保存中...' : '保存'}
+          {isSaving ? 'Saving...' : 'Save'}
         </button>
       </div>
     </div>

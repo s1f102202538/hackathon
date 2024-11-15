@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef, KeyboardEvent } from 'react';
 import { useAuth, UserButton } from '@clerk/nextjs';
 import axios from 'axios';
-
 import Select, {
   StylesConfig,
   components,
   OnChangeValue,
   MenuListProps,
+  IndicatorsContainerProps,
   ClearIndicatorProps,
 } from 'react-select';
 
@@ -18,10 +18,6 @@ interface OptionType {
 interface WordStatsSearchProps {
   onSearch: (searchTerm: string) => void;
 }
-
-const isMobile = window.innerWidth <= 768; // モバイル用の画面幅の例
-const button_pos_right = isMobile ? '8.5%' : '2.5%';
-const button_pos_top = isMobile ? '3.5%' : '3.5%';
 
 const CustomMenuList = (props: MenuListProps<OptionType, false>) => {
   return (
@@ -42,7 +38,46 @@ const CustomMenuList = (props: MenuListProps<OptionType, false>) => {
   );
 };
 
-// Custom ClearIndicator componentのスタイルを調整
+// カスタム IndicatorsContainer コンポーネントの定義
+const CustomIndicatorsContainer = (
+  props: IndicatorsContainerProps<OptionType, false>
+) => {
+  return (
+    <components.IndicatorsContainer {...props}>
+      {props.children}
+      <div
+        onMouseDown={(e) => e.stopPropagation()} // イベントの伝播を停止
+        style={{
+          marginLeft: '5px', // クリアボタンとの間隔を広げる
+          marginTop: '1px',   // 少し下に配置
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <div
+          style={{
+            height: '30px',
+            width: '30px',
+            borderRadius: '50%',
+            padding: '0',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            overflow: 'hidden', // 円形にするため
+            touchAction: 'auto' // タッチイベントを有効にする
+          }}
+        >
+          <UserButton
+            userProfileMode="modal"
+          />
+        </div>
+      </div>
+    </components.IndicatorsContainer>
+  );
+};
+
+// カスタム ClearIndicator コンポーネントの定義
 const CustomClearIndicator = (
   props: ClearIndicatorProps<OptionType, false>
 ) => {
@@ -50,7 +85,7 @@ const CustomClearIndicator = (
     <components.ClearIndicator {...props}>
       <span
         style={{
-          padding: '0 50px', // パディングを調整して「X」を左側に寄せる
+          padding: '0 12px', // クリアボタンを少し左にシフト
           cursor: 'pointer',
           fontSize: '16px',
           lineHeight: '1',
@@ -62,13 +97,10 @@ const CustomClearIndicator = (
   );
 };
 
-// IndicatorSeparatorをnullに設定して「|」を削除
-const IndicatorSeparator = () => null;
-
 const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   const [randomWords, setRandomWords] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
-  const [inputValue, setInputValue] = useState<string>(''); // Track input value
+  const [inputValue, setInputValue] = useState<string>(''); // 入力値を追跡
   const { userId } = useAuth();
   const selectRef = useRef<HTMLDivElement>(null);
 
@@ -78,13 +110,11 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
       borderRadius: '50px',
       borderColor: '#CCC',
       minHeight: '40px',
-      paddingRight: '7px',
+      paddingRight: '7px', // UserButtonとクリアボタンのスペースを増やす
       boxShadow: state.isFocused ? '0 0 0 1px #2684FF' : provided.boxShadow,
       '&:hover': {
         borderColor: '#2684FF',
       },
-      position: 'relative',
-      zIndex: 1, // Ensure it's below any overlay elements
     }),
     placeholder: (provided) => ({
       ...provided,
@@ -97,7 +127,6 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
       padding: '0px',
       maxHeight: '250px',
       overflowY: 'auto',
-      zIndex: 10, // Increased to ensure dropdown appears above other elements
     }),
     menuList: (provided) => ({
       ...provided,
@@ -120,6 +149,10 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
       fontSize: '12px',
       wordBreak: 'break-word',
     }),
+    indicatorsContainer: (provided) => ({
+      ...provided,
+      // 必要に応じて調整
+    }),
   };
 
   const fetchWords = async () => {
@@ -135,7 +168,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   };
 
   const getRandomWords = (words: string[], count: number): string[] => {
-    const uniqueWords = Array.from(new Set(words));
+    const uniqueWords = Array.from(new Set(words)); // 重複を排除
     console.log(uniqueWords);
     if (uniqueWords.length <= count) {
       return uniqueWords;
@@ -172,6 +205,7 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   }, [userId]);
 
   const options: OptionType[] = randomWords.map((word) => {
+    // シングルクオーテーションとダブルクオーテーションを削除
     const sanitizedWord = word.replace(/["']/g, '');
     return {
       value: sanitizedWord,
@@ -180,66 +214,53 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
   });
 
   const handleSubmit = (search: string) => {
+    // シングルクオーテーションとダブルクオーテーションを削除
     const sanitizedSearch = search.replace(/["']/g, '');
     if (sanitizedSearch) {
       onSearch(sanitizedSearch);
     }
   };
 
-  // Handler for Enter key press
+  // Enterキー押下時のハンドラー
   const handleKeyDown = (event: KeyboardEvent) => {
     if (event.key === 'Enter') {
-      event.preventDefault(); // Prevent default form submission
+      event.preventDefault(); // フォームのデフォルト送信を防止
       handleSubmit(inputValue);
     }
   };
 
-  // Handler for Select component's onChange
+  // `Select` コンポーネントのonChangeハンドラー
   const handleChange = (option: OnChangeValue<OptionType, false>) => {
     if (option) {
+      // シングルクオーテーションとダブルクオーテーションを削除
       const sanitizedValue = option.value.replace(/["']/g, '');
       setSearchTerm(sanitizedValue);
-      setInputValue(sanitizedValue); // Update input value as well
+      setInputValue(sanitizedValue); // 入力値も更新
       handleSubmit(sanitizedValue);
     } else {
       setSearchTerm('');
       setInputValue('');
+      // 必要に応じてクリア時の処理を追加
     }
   };
 
-  // Handler for Select component's onInputChange
+  // `Select` コンポーネントのonInputChangeハンドラー
   const handleInputChange = (newValue: string) => {
+    // シングルクオーテーションとダブルクオーテーションを削除
     const sanitizedValue = newValue.replace(/["']/g, '');
     setInputValue(sanitizedValue);
   };
 
   return (
-    <div style={{ padding: '20px', position: 'relative' }}>
-      {/* ユーザーボタンを固定位置に配置 */}
-      <div
-        style={{
-          position: 'fixed', // 固定位置
-          zIndex: '10000000', // マップよりも前面に表示
-          top: button_pos_top,
-          right: button_pos_right,
-        }}
-      >
-        <UserButton
-          userProfileMode="modal"
-          afterSignOutUrl="/" // Optional: Redirect after sign out
-          // You can pass additional props if needed
-        />
-      </div>
-
-      {/* 検索バー */}
+    <div style={{ padding: '20px', display: 'flex', justifyContent: 'flex-end' }}>
       <form
         onSubmit={(e) => {
           e.preventDefault();
           handleSubmit(searchTerm);
         }}
-        style={{ display: 'flex', alignItems: 'center', width: '100%', justifyContent: 'center' }} // 中央寄せなど調整
+        style={{ display: 'flex', alignItems: 'center', width: '100%',}}
       >
-        <div style={{ width: '100%', position: 'relative' }} ref={selectRef}>
+        <div style={{ width: '100%', position: 'relative', zIndex: '1' }} ref={selectRef}>
           <Select
             options={options}
             placeholder="単語を検索..."
@@ -247,13 +268,13 @@ const WordStatsSearch: React.FC<WordStatsSearchProps> = ({ onSearch }) => {
             styles={customStyles}
             onChange={handleChange}
             onInputChange={handleInputChange}
-            onKeyDown={handleKeyDown}
+            onKeyDown={handleKeyDown} // Enterキー押下をキャッチ
             inputValue={inputValue}
             components={{
               MenuList: CustomMenuList,
-              ClearIndicator: CustomClearIndicator, // Use custom ClearIndicator
-              DropdownIndicator: () => null, // Hide dropdown arrow
-              IndicatorSeparator: IndicatorSeparator, // Remove the separator
+              IndicatorsContainer: CustomIndicatorsContainer, // カスタム IndicatorsContainer を使用
+              ClearIndicator: CustomClearIndicator, // カスタム ClearIndicator を使用
+              DropdownIndicator: () => null, // ドロップダウン矢印を非表示にする
             }}
           />
         </div>
