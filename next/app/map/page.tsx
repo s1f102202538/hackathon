@@ -5,6 +5,8 @@ import WordStatsSearch from './_components/WordSearchInput';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
+import { Word } from 'app/types/Word';
+import { WordsLocation } from 'app/types/WordsLocation';
 
 const MapComponent = dynamic(() => import('./_components/Map'), { ssr: false });
 
@@ -12,7 +14,7 @@ const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchKey, setSearchKey] = useState<number>(0);
   const [coordinates, setCoordinates] = useState<{
-    word: string[][];
+    word: Word[][];
     Latitude: string[];
     Longitude: string[];
   } | null>(null);
@@ -36,45 +38,35 @@ const HomePage: React.FC = () => {
       const data = await fetchWordsLocation();
       if (data) {
         setCoordinates({
-          Latitude: data.wordsLocationList.map(
-            (location: {
-              lat: string;
-              lon: string;
-              words: { romaji: string }[];
-            }) => location.lat
-          ),
-          Longitude: data.wordsLocationList.map(
-            (location: {
-              lat: string;
-              lon: string;
-              words: { romaji: string }[];
-            }) => location.lon
-          ),
-          word: data.wordsLocationList.map(
-            (location: {
-              lat: number;
-              lon: number;
-              words: { romaji: string }[];
-            }) => location.words.map((word) => word['romaji'])
+          Latitude: data.wordsLocationList.map((location: WordsLocation) => location.lat),
+          Longitude: data.wordsLocationList.map((location: WordsLocation) => location.lon),
+          word: data.wordsLocationList.map((location: WordsLocation) =>
+            location.words.map((word: Word) => ({
+              userLang: word.userLang,
+              ja: word.ja,          // 既存の日本語フィールド
+              romaji: word.romaji,  // 追加: ローマ字フィールド
+            }))
           ),
         });
       }
     }
     getWordsLocation();
   }, [userId]);
+
   const iconPath = '/images/mapicon_pin_red1_32x32.png';
   const selectedIconPath = '/images/mapicon_pin_blue1_32x32.png';
 
-  console.log("ghsiugsdakfbahbgfahf",coordinates,searchTerm,searchKey)
+  console.log("Coordinates:", coordinates, "Search Term:", searchTerm, "Search Key:", searchKey);
 
   const handleSearch = (searchTerm: string) => {
     setSearchTerm(searchTerm);
     setSearchKey((prevKey) => prevKey + 1);
   };
+
   return (
-    <div style={{height:'100%', width:'100%'}}>
+    <div style={{ height: '100%', width: '100%' }}>
       <div style={{ position: 'relative', height: '100%', width: '100%' }}>
-      <div style={{ position: 'absolute',  zIndex: 1, width: '100%' }}>
+        <div style={{ position: 'absolute', width: '100%' }}>
           <WordStatsSearch onSearch={handleSearch} />
         </div>
         {coordinates && (
@@ -86,7 +78,7 @@ const HomePage: React.FC = () => {
             searchKey={searchKey}
           />
         )}
-      <Navbar />
+        <Navbar />
       </div>
     </div>
   );
