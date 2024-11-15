@@ -5,6 +5,7 @@ import { useAuth, useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 import axios from 'axios';
 import toast from 'react-hot-toast';
+import Loading from 'app/components/Loading';
 
 const LanguageSelector: React.FC = () => {
   const { user, isLoaded } = useUser();
@@ -90,7 +91,7 @@ const LanguageSelector: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100">
-        <p>読み込み中...</p>
+        <Loading />
       </div>
     );
   }
