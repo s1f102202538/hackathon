@@ -1,6 +1,5 @@
 const SplitText = (translateText: string): string[] => {
-  const wordsArray = translateText.trim().split(/,|、|，/);
-  return wordsArray;
+  return translateText.split(/,|、|，/);
 };
 
 export default SplitText;

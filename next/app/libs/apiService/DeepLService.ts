@@ -1,6 +1,6 @@
 import translate, { DeeplLanguages } from 'deepl';
 import { Languages } from '@prisma/client';
-import SplitText from '../utility/splitText';
+import SplitText from '../utility/SplitText';
 
 export default class DeepLService {
   private static readonly apiKey = `${process.env.DEEPL_API_KEY}`;
