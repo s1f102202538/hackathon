@@ -40,9 +40,6 @@ interface MapComponentProps {
 const JAPAN_CENTER = { lat: 36.2048, lng: 138.2529 };
 const JAPAN_ZOOM = 5;
 const SINGLE_MARKER_ZOOM = 11; // 単一マーカー時のズームレベルを追加
-const isMobile = window.innerWidth <= 768; // モバイル用の画面幅の例
-const fontSize = isMobile ? '12px' : '15px';
-const jaFontSize = isMobile ? '11px' : '13px';
 // CustomInfoWindowの型を定義（googleを参照しない）
 interface CustomInfoWindowType {
   close(): void;
@@ -132,6 +129,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
             this.containerDiv.style.zIndex = '9999'; // 高いz-indexを設定
 
             const contentDiv = document.createElement('div');
+            const isMobile = window.innerWidth <= 768; // モバイル用の画面幅の例
+            const fontSize = isMobile ? '12px' : '15px';
+            const jaFontSize = isMobile ? '11px' : '13px';
             contentDiv.style.background = 'rgba(240, 240, 240)';
             contentDiv.style.padding = '5px'; // パディングを調整
             contentDiv.style.borderRadius = '5px';
@@ -169,7 +169,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
               span.style.fontSize = fontSize;
 
               // userLang と開き括弧
-              const userLangText = document.createTextNode(cleanUserLang + ':(');
+              const userLangText = document.createTextNode(cleanUserLang + '(');
               const endOfuserLangText = document.createTextNode(')');
 
               // ruby要素を作成
@@ -236,7 +236,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             commentButton.style.backgroundColor = '#007bff';
             commentButton.style.color = '#fff';
             commentButton.style.width = '100%';
-            commentButton.style.height = '20px';
+            commentButton.style.height = '30px';
             commentButton.style.border = 'none';
             commentButton.style.borderRadius = '3px';
             commentButton.style.cursor = 'pointer';
@@ -504,7 +504,19 @@ const MapComponent: React.FC<MapComponentProps> = ({
           <DrawerHeader>
             <DrawerTitle>Comments</DrawerTitle>
             <DrawerDescription>
-              <p>No data available.</p>
+            {drawerData && drawerData.length > 0 ? (
+              <div>
+                {drawerData.map((word, index) => (
+                  <div key={index} style={{ marginBottom: '8px' }}>
+                    <strong>{word.userLang}:</strong>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div>
+              No data available
+              </div>
+            )}
             </DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
