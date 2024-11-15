@@ -56,7 +56,7 @@ model WordsLocation {
   words    String
   lat      String
   lon      String
-  comment  String
+  comment  String   @default("")
   createAt DateTime @default(now())
   updateAt DateTime @updatedAt
 }

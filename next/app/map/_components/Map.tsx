@@ -1,8 +1,12 @@
+// MapComponent.tsx
+
 'use client';
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Word } from 'app/types/Word';
+import { useAuth } from '@clerk/nextjs';
+import axios from 'axios';
 import {
   Drawer,
   DrawerContent,
@@ -10,12 +14,13 @@ import {
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
-} from "../../components/ui/drawer";
+} from '../../components/ui/drawer';
 
-// 型定義にカスタムプロパティを追加
 declare global {
   interface MarkerWithWords extends google.maps.Marker {
     words: Word[];
+    id: number;
+    comment: string;
   }
 }
 
@@ -23,6 +28,8 @@ type Coordinate = {
   lat: number;
   lng: number;
   words: Word[];
+  id: number;
+  comment: string;
 };
 
 interface MapComponentProps {
@@ -30,6 +37,8 @@ interface MapComponentProps {
     Latitude: string[];
     Longitude: string[];
     word: Word[][];
+    id: number[];
+    comment: string[];
   };
   iconPath: string;
   selectedIconPath: string;
@@ -39,8 +48,8 @@ interface MapComponentProps {
 
 const JAPAN_CENTER = { lat: 36.2048, lng: 138.2529 };
 const JAPAN_ZOOM = 5;
-const SINGLE_MARKER_ZOOM = 11; // 単一マーカー時のズームレベルを追加
-// CustomInfoWindowの型を定義（googleを参照しない）
+const SINGLE_MARKER_ZOOM = 11;
+
 interface CustomInfoWindowType {
   close(): void;
   setMap(map: google.maps.Map | null): void;
@@ -53,45 +62,75 @@ const MapComponent: React.FC<MapComponentProps> = ({
   searchTerm,
   searchKey,
 }) => {
+  const { userId } = useAuth();
   const mapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<MarkerWithWords[]>([]);
   const infoWindowRef = useRef<CustomInfoWindowType | null>(null);
   const [currentSelectedTitles, setCurrentSelectedTitles] = useState<string[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [drawerData, setDrawerData] = useState<Word[] | null>(null);
+  const [drawerData, setDrawerData] = useState<{ words: Word[]; comment: string; id: number } | null>(null);
 
-  // Function to open Drawer
-  const handleOpenDrawer = (words: Word[]) => {
-    setDrawerData(words);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedComment, setEditedComment] = useState('');
+
+  const handleOpenDrawer = (words: Word[], comment: string, id: number) => {
+    setDrawerData({ words, comment, id });
+    setEditedComment(comment);
+    setIsEditing(false);
     setIsDrawerOpen(true);
   };
 
-  // Function to close Drawer
   const handleCloseDrawer = () => {
     setIsDrawerOpen(false);
     setDrawerData(null);
+    setIsEditing(false);
+  };
+
+  const handleSaveComment = async () => {
+    if (drawerData) {
+      setDrawerData({ ...drawerData, comment: editedComment });
+      // マーカーのコメントプロパティを更新
+      const marker = markersRef.current.find((m) => m.id === drawerData.id);
+      if (marker) {
+        marker.comment = editedComment;
+      }
+      // コメントを更新するためのAPIコール
+      try {
+        const response = await axios.post('/api/words-location/save/comment', {
+          clientId: userId,
+          id: drawerData.id,
+          comment: editedComment,
+        });
+        console.log('Comment updated successfully', response);
+      } catch (error) {
+        console.error('Error updating comment:', error);
+      }
+      setIsEditing(false);
+    }
   };
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_APIKEY || '';
 
-  // 座標をオブジェクトの配列に変換
   const coordinateArray = useMemo(() => {
     const array: Coordinate[] = [];
     const latitudes = coordinates.Latitude;
     const longitudes = coordinates.Longitude;
     const wordsArray = coordinates.word;
+    const ids = coordinates.id;
+    const comments = coordinates.comment;
 
     for (let i = 0; i < latitudes.length; i++) {
       array.push({
         lat: parseFloat(latitudes[i]),
         lng: parseFloat(longitudes[i]),
         words: wordsArray[i],
+        id: ids[i],
+        comment: comments[i],
       });
     }
     return array;
   }, [coordinates]);
 
-  // マップとマーカーの初期化
   useEffect(() => {
     const loader = new Loader({
       apiKey: apiKey,
@@ -102,58 +141,60 @@ const MapComponent: React.FC<MapComponentProps> = ({
     loader
       .load()
       .then(() => {
-        // CustomInfoWindow クラスをgoogleがロードされた後に定義
         class CustomInfoWindow extends google.maps.OverlayView {
           private position: google.maps.LatLng;
           private containerDiv: HTMLDivElement;
           private apiKey: string;
           private onStreetView: () => void;
-          private onComment: (words: Word[]) => void; // New callback
+          private onComment: (words: Word[], comment: string, id: number) => void;
+          private comment: string;
+          private id: number;
 
           constructor(
             position: google.maps.LatLng,
             words: Word[],
+            comment: string,
             onStreetView: () => void,
-            onComment: (words: Word[]) => void, // Receive the callback
-            apiKey: string
+            onComment: (words: Word[], comment: string, id: number) => void,
+            apiKey: string,
+            id: number
           ) {
             super();
             this.position = position;
             this.apiKey = apiKey;
             this.onStreetView = onStreetView;
-            this.onComment = onComment; // Assign the callback
+            this.onComment = onComment;
+            this.comment = comment;
+            this.id = id;
 
             this.containerDiv = document.createElement('div');
             this.containerDiv.style.position = 'absolute';
             this.containerDiv.style.pointerEvents = 'none';
-            this.containerDiv.style.zIndex = '9999'; // 高いz-indexを設定
+            this.containerDiv.style.zIndex = '9999';
 
             const contentDiv = document.createElement('div');
-            const isMobile = window.innerWidth <= 768; // モバイル用の画面幅の例
+            const isMobile = window.innerWidth <= 768;
             const fontSize = isMobile ? '12px' : '15px';
             const jaFontSize = isMobile ? '11px' : '13px';
             contentDiv.style.background = 'rgba(240, 240, 240)';
-            contentDiv.style.padding = '5px'; // パディングを調整
+            contentDiv.style.padding = '5px';
             contentDiv.style.borderRadius = '5px';
-            contentDiv.style.fontSize = fontSize; // フォントサイズを小さく
+            contentDiv.style.fontSize = fontSize;
             contentDiv.style.fontWeight = 'bold';
             contentDiv.style.pointerEvents = 'auto';
             contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
             contentDiv.style.position = 'relative';
             contentDiv.style.textAlign = 'center';
-            contentDiv.style.width = '300px'; // 幅を調整
+            contentDiv.style.width = '300px';
 
-            // 単語を包むコンテナを作成
             const wordsContainer = document.createElement('div');
             wordsContainer.style.display = 'flex';
             wordsContainer.style.flexWrap = 'wrap';
             wordsContainer.style.justifyContent = 'center';
-            wordsContainer.style.gap = '4px'; // アイテム間のギャップを追加
+            wordsContainer.style.gap = '4px';
 
-            // 各単語を指定の形式で表示
             words.forEach((wordObj) => {
               const { userLang, ja, romaji } = wordObj;
-              // ダブルクオーテーションとシングルクオーテーションを削除
               const cleanUserLang = userLang.replace(/['"]/g, '');
               const cleanJa = ja.replace(/['"]/g, '');
               const cleanRomaji = (romaji || '').replace(/['"]/g, '');
@@ -168,11 +209,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
               span.style.whiteSpace = 'nowrap';
               span.style.fontSize = fontSize;
 
-              // userLang と開き括弧
               const userLangText = document.createTextNode(cleanUserLang + '(');
               const endOfuserLangText = document.createTextNode(')');
 
-              // ruby要素を作成
               const ruby = document.createElement('ruby');
               ruby.style.fontSize = fontSize;
 
@@ -189,7 +228,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
                 ruby.appendChild(rt);
               }
 
-              // spanに要素を追加
               span.appendChild(userLangText);
               span.appendChild(ruby);
               span.appendChild(endOfuserLangText);
@@ -199,7 +237,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             contentDiv.appendChild(wordsContainer);
 
-            // ストリートビューの画像を作成
             const streetViewImage = document.createElement('img');
             streetViewImage.src =
               'https://maps.googleapis.com/maps/api/streetview?' +
@@ -212,8 +249,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
               this.apiKey;
             streetViewImage.alt = 'Street View Image';
             streetViewImage.style.display = 'block';
-            streetViewImage.style.margin = '5px auto 0 auto'; // 中央揃え
-            streetViewImage.style.width = '290px'; // 幅を調整
+            streetViewImage.style.margin = '5px auto 0 auto';
+            streetViewImage.style.width = '290px';
             streetViewImage.style.height = '100px';
             streetViewImage.style.cursor = 'pointer';
             streetViewImage.style.borderRadius = '3px';
@@ -223,16 +260,14 @@ const MapComponent: React.FC<MapComponentProps> = ({
             streetViewImage.addEventListener('click', (e) => {
               e.stopPropagation();
               e.preventDefault();
-              console.log('Street View Image clicked');
               this.onStreetView();
             });
 
             contentDiv.appendChild(streetViewImage);
 
-            // Add "Comment" Button
             const commentButton = document.createElement('button');
             commentButton.textContent = 'Comment';
-            commentButton.style.marginTop = '5px';;
+            commentButton.style.marginTop = '5px';
             commentButton.style.backgroundColor = '#007bff';
             commentButton.style.color = '#fff';
             commentButton.style.width = '100%';
@@ -245,8 +280,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             commentButton.addEventListener('click', (e) => {
               e.stopPropagation();
               e.preventDefault();
-              console.log('Comment button clicked');
-              this.onComment(words); // Trigger the callback with words
+              this.onComment(words, this.comment, this.id);
             });
 
             contentDiv.appendChild(commentButton);
@@ -294,29 +328,24 @@ const MapComponent: React.FC<MapComponentProps> = ({
           }
         }
 
-        // Initialize the map
         if (!mapRef.current) {
           mapRef.current = new google.maps.Map(document.getElementById('map') as HTMLElement, {
-            center: JAPAN_CENTER, // 初期は日本の中心に設定
-            zoom: JAPAN_ZOOM, // 初期は日本全体のズームレベルに設定
-            fullscreenControl: false, // マップ自体の全画面ボタンを無効化
+            center: JAPAN_CENTER,
+            zoom: JAPAN_ZOOM,
+            fullscreenControl: false,
             mapTypeControl: false,
-            streetViewControl: true, // ストリートビューコントロールを有効化
+            streetViewControl: true,
           });
 
-          // ストリートビューの全画面ボタンを無効化
           const streetView = mapRef.current.getStreetView();
           streetView.setOptions({
             fullscreenControl: false,
           });
 
-          // マップのクリックリスナーを設定
           mapRef.current.addListener('click', () => {
-            // 選択状態をリセット
             setCurrentSelectedTitles([]);
             resetMarkers();
 
-            // 開いているインフォウィンドウを閉じる
             if (infoWindowRef.current) {
               infoWindowRef.current.close();
               infoWindowRef.current = null;
@@ -329,20 +358,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
         markersRef.current = [];
 
         if (coordinateArray.length > 0) {
-          // 新しいマーカーを追加
           coordinateArray.forEach((coord) => {
             const marker = new google.maps.Marker({
               position: { lat: coord.lat, lng: coord.lng },
               map: mapRef.current!,
-              title: coord.words.map((word) => word.userLang).join(', '), // userLang をタイトルに設定
+              title: coord.words.map((word) => word.userLang).join(', '),
               icon: iconPath,
             }) as MarkerWithWords;
 
-            // カスタムプロパティとして単語を設定
             marker.words = coord.words;
+            marker.id = coord.id;
+            marker.comment = coord.comment;
 
             marker.addListener('click', () => {
-              setCurrentSelectedTitles(coord.words.map((word) => word.userLang)); // userLang を選択タイトルとして設定
+              setCurrentSelectedTitles(coord.words.map((word) => word.userLang));
 
               if (infoWindowRef.current) {
                 infoWindowRef.current.close();
@@ -350,7 +379,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
               infoWindowRef.current = new CustomInfoWindow(
                 marker.getPosition()!,
-                coord.words, // Pass words array
+                marker.words, // 最新の words を使用
+                marker.comment, // 最新の comment を使用
                 () => {
                   const streetView = mapRef.current!.getStreetView();
                   streetView.setPosition(marker.getPosition()!);
@@ -360,13 +390,13 @@ const MapComponent: React.FC<MapComponentProps> = ({
                   });
                   streetView.setVisible(true);
                 },
-                handleOpenDrawer, // Pass the callback
-                apiKey
+                handleOpenDrawer,
+                apiKey,
+                marker.id // 最新の id を使用
               );
 
               infoWindowRef.current.setMap(mapRef.current!);
 
-              // ピンの色を変更し、アニメーションを付ける
               markersRef.current.forEach((m) => {
                 if (m === marker) {
                   m.setIcon(selectedIconPath);
@@ -384,13 +414,11 @@ const MapComponent: React.FC<MapComponentProps> = ({
             markersRef.current.push(marker);
           });
 
-          // マーカーの数に応じて地図の表示を調整
           if (coordinateArray.length === 1) {
             const singleCoord = coordinateArray[0];
             mapRef.current.setCenter({ lat: singleCoord.lat, lng: singleCoord.lng });
-            mapRef.current.setZoom(SINGLE_MARKER_ZOOM); // 単一マーカーのズームレベルを設定
+            mapRef.current.setZoom(SINGLE_MARKER_ZOOM);
           } else {
-            // 複数マーカーがある場合は全てを表示するように範囲を調整
             const bounds = new google.maps.LatLngBounds();
             coordinateArray.forEach((coord) => {
               bounds.extend(new google.maps.LatLng(coord.lat, coord.lng));
@@ -398,7 +426,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
             mapRef.current.fitBounds(bounds);
           }
         } else {
-          // 座標がない場合は日本全体を表示
           mapRef.current.setCenter(JAPAN_CENTER);
           mapRef.current.setZoom(JAPAN_ZOOM);
         }
@@ -406,9 +433,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
       .catch((error) => {
         console.error('Error loading Google Maps:', error);
       });
-  }, [coordinateArray, iconPath, selectedIconPath, apiKey]);
 
-  // searchTerm の変更を処理（部分一致も含む）
+  }, [coordinateArray, iconPath, selectedIconPath, apiKey]); // useEffect の依存配列はここに
+
   useEffect(() => {
     const trimmedSearchTerm = searchTerm.trim().toLowerCase();
 
@@ -418,10 +445,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
       return;
     }
 
-    // 現在選択されているタイトルを設定
     setCurrentSelectedTitles([searchTerm]);
 
-    // すべてのマーカーをチェック
     markersRef.current.forEach((marker) => {
       const words = marker.words || [];
       const isMatch = words.some(
@@ -437,7 +462,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
     });
   }, [searchTerm, searchKey]);
 
-  // 選択されたタイトルに基づいてマーカーを更新
   useEffect(() => {
     markersRef.current.forEach((marker) => {
       const words = marker.words || [];
@@ -458,7 +482,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
       }
     });
 
-    // 選択されたマーカーに基づいて地図の中心を調整（ズームは変更しない）
     if (currentSelectedTitles.length > 0 && mapRef.current) {
       const selectedMarkers = markersRef.current.filter((marker) => {
         const words = marker.words || [];
@@ -468,7 +491,6 @@ const MapComponent: React.FC<MapComponentProps> = ({
       });
 
       if (selectedMarkers.length > 0) {
-        // 中心点を計算
         const avgLat =
           selectedMarkers.reduce((sum, marker) => sum + marker.getPosition()!.lat(), 0) / selectedMarkers.length;
         const avgLng =
@@ -491,40 +513,84 @@ const MapComponent: React.FC<MapComponentProps> = ({
       <div id="map" className="custom-map" style={{ width: '100%', height: '100vh' }} />
       <style>
         {`
-          /* Zoom ControlとStreet View Controlの位置を調整 */
           .custom-map .gm-bundled-control-on-bottom {
             bottom: 35% !important;
           }
         `}
       </style>
 
-      {/* Drawer Component */}
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader>
             <DrawerTitle>Comments</DrawerTitle>
             <DrawerDescription>
-            {drawerData && drawerData.length > 0 ? (
-              <div>
-                {drawerData.map((word, index) => (
-                  <div key={index} style={{ marginBottom: '8px' }}>
-                    <strong>{word.userLang}:</strong>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div>
-              No data available
-              </div>
-            )}
+              {drawerData ? (
+                <>
+                  {isEditing ? (
+                    <textarea
+                      value={editedComment}
+                      onChange={(e) => setEditedComment(e.target.value)}
+                      style={{ width: '100%', height: '100px', marginTop: '16px' }}
+                    />
+                  ) : (
+                    <>
+                      {drawerData.comment && drawerData.comment.trim() !== '' && (
+                        <div style={{ marginTop: '16px' }}>
+                          <strong>Comment:</strong>
+                          <p>{drawerData.comment}</p>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </>
+              ) : (
+                <div>No data available</div>
+              )}
             </DrawerDescription>
           </DrawerHeader>
           <DrawerFooter>
+            {isEditing ? (
+              <button
+                onClick={handleSaveComment}
+                style={{
+                  padding: '8px 16px',
+                  backgroundColor: '#28a745',
+                  color: '#fff',
+                  width: '100%',
+                  border: 'none',
+                  textAlign: 'center',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  marginRight: '8px',
+                }}
+              >
+                Save
+              </button>
+            ) : (
+              <button
+                onClick={() => setIsEditing(true)}
+                style={{
+                  padding: '8px 16px',
+                  width: '100%',
+                  backgroundColor: '#007bff',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                  cursor: 'pointer',
+                  marginRight: '8px',
+                }}
+              >
+                Edit
+              </button>
+            )}
             <button
               onClick={handleCloseDrawer}
               style={{
+                width: '100%',
                 padding: '8px 16px',
                 backgroundColor: '#6c757d',
+                textAlign: 'center',
                 color: '#fff',
                 border: 'none',
                 borderRadius: '4px',
