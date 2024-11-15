@@ -12,7 +12,7 @@ export async function POST(req: NextRequest): Promise<NextResponse<{ status: num
   try {
     const params: SaveCommentParams = await req.json();
 
-    UserWordsLocationService.SaveComment(params.clientId, params.id, params.comment);
+    await UserWordsLocationService.SaveComment(params.clientId, params.id, params.comment);
 
     return NextResponse.json({ status: 200 });
   } catch (error) {
