@@ -15,6 +15,7 @@ export default class UserWordsLocationService {
           words: JSON.stringify(words),
           lat,
           lon,
+          comment: '',
         },
       });
     }
@@ -30,15 +31,30 @@ export default class UserWordsLocationService {
 
       const wordsLocations: WordsLocation[] = data.map((wordsLocation) => {
         return {
+          id: wordsLocation.id,
           words: JSON.parse(wordsLocation.words) as Word[],
           lat: wordsLocation.lat,
           lon: wordsLocation.lon,
+          comment: wordsLocation.comment,
         };
       });
 
       return wordsLocations;
     } else {
       return null;
+    }
+  }
+
+  public static async SaveComment(clientId: string, id: number, comment: string): Promise<void> {
+    const user = await UserService.FindUserByClientId(clientId);
+
+    if (user !== null) {
+      await prisma.wordsLocation.update({
+        where: { userId: user.id, id },
+        data: {
+          comment,
+        },
+      });
     }
   }
 }

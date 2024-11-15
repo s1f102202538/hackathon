@@ -1,24 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 
 import UserWordsLocationService from 'app/libs/userService/UserWordsLocationService';
-import { Word } from 'app/types/Word';
 
-export type SaveWordsLocationParams = {
+export type SaveCommentParams = {
   clientId: string;
-  words: Word[];
-  lat: string;
-  lon: string;
+  id: number;
+  comment: string;
 };
 
 export async function POST(req: NextRequest): Promise<NextResponse<{ status: number }>> {
   try {
-    const params: SaveWordsLocationParams = await req.json();
+    const params: SaveCommentParams = await req.json();
 
-    UserWordsLocationService.Create(params.clientId, params.words, params.lat, params.lon);
+    UserWordsLocationService.SaveComment(params.clientId, params.id, params.comment);
 
     return NextResponse.json({ status: 200 });
   } catch (error) {
-    console.error('Unexpected Error in POST /api/words-location/save:', error);
+    console.error('Unexpected Error in POST /api/words-location/save/comment:', error);
     return NextResponse.json({ status: 500 });
   }
 }
