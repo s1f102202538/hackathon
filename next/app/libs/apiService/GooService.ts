@@ -27,12 +27,12 @@ export default class GooService {
       output_type: this.outPutType,
     };
 
-    const response: AxiosResponse<HiraganaAPIParams> = await axios.post(this.url, params);
+    const response: AxiosResponse<HiraganaAPIResponse> = await axios.post(this.url, params);
 
     if (response === null) {
       throw new Error('GooService: HiraganaAPI response is null');
     }
 
-    return SplitText(response.data.sentence);
+    return SplitText(response.data.converted);
   }
 }
