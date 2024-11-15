@@ -256,9 +256,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             streetViewImage.style.touchAction = 'auto'; // タッチイベントを有効にする
             streetViewImage.style.zIndex = '10';
 
-            streetViewImage.addEventListener('click', (e) => {
-              e.stopPropagation();
-              e.preventDefault();
+            streetViewImage.addEventListener('click', () => {
               this.onStreetView();
             });
 
@@ -280,11 +278,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
             commentButton.style.touchAction = 'auto'; // タッチイベントを有効にする
             commentButton.style.zIndex = '10';
 
-            commentButton.addEventListener('click', (e) => {
-              e.stopPropagation();
-              e.preventDefault();
+            commentButton.addEventListener('click', () => {
               this.onComment(words, this.comment, this.id);
-            });
+          });
+
 
             contentDiv.appendChild(commentButton);
 
