@@ -9,6 +9,7 @@ import { useAuth, useUser } from '@clerk/nextjs';
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { translations } from '../libs/i18n/translations';
+import Loading from 'app/components/Loading';
 
 const SpeakPage = () => {
   const { isLoaded } = useUser();
@@ -48,7 +49,7 @@ const SpeakPage = () => {
   }, [isLoaded, isSignedIn, router, userId]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Loading />;
   }
 
   // usedLang が null の場合は何も表示しない（リダイレクトされているはず）
