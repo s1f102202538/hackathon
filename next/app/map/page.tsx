@@ -1,10 +1,7 @@
-// HomePage.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/layout/navbar/Navbar';
-import WordStatsSearch from './_components/WordSearchInput';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
@@ -13,6 +10,7 @@ import { WordsLocation } from 'app/types/WordsLocation';
 import Loading from 'app/components/Loading';
 
 const MapComponent = dynamic(() => import('./_components/Map'), { ssr: false });
+const WordStatsSearch = dynamic(() => import('./_components/WordSearchInput'), { ssr: false });
 
 const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
