@@ -1,5 +1,3 @@
-// MapComponent.tsx
-
 'use client';
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
@@ -101,9 +99,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
           id: drawerData.id,
           comment: editedComment,
         });
-        console.log('Comment updated successfully', response);
+        console.log('コメントが正常に更新されました', response);
       } catch (error) {
-        console.error('Error updating comment:', error);
+        console.error('コメントの更新中にエラーが発生しました:', error);
       }
       setIsEditing(false);
     }
@@ -169,8 +167,10 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             this.containerDiv = document.createElement('div');
             this.containerDiv.style.position = 'absolute';
-            this.containerDiv.style.pointerEvents = 'none';
+            this.containerDiv.style.pointerEvents = 'auto';
             this.containerDiv.style.zIndex = '9999';
+            this.containerDiv.style.touchAction = 'auto'; // タッチイベントを有効にする
+
 
             const contentDiv = document.createElement('div');
             const isMobile = window.innerWidth <= 768;
@@ -181,7 +181,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             contentDiv.style.borderRadius = '5px';
             contentDiv.style.fontSize = fontSize;
             contentDiv.style.fontWeight = 'bold';
-            contentDiv.style.pointerEvents = 'auto';
+            contentDiv.style.pointerEvents = 'auto'; // 内部要素もクリック可能
             contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
             contentDiv.style.position = 'relative';
             contentDiv.style.textAlign = 'center';
@@ -237,6 +237,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             contentDiv.appendChild(wordsContainer);
 
+            // ストリートビュー画像の作成とイベントリスナーの設定
             const streetViewImage = document.createElement('img');
             streetViewImage.src =
               'https://maps.googleapis.com/maps/api/streetview?' +
@@ -247,7 +248,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
               this.position.lng() +
               '&key=' +
               this.apiKey;
-            streetViewImage.alt = 'Street View Image';
+            streetViewImage.alt = 'ストリートビュー画像';
             streetViewImage.style.display = 'block';
             streetViewImage.style.margin = '5px auto 0 auto';
             streetViewImage.style.width = '290px';
@@ -255,7 +256,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
             streetViewImage.style.cursor = 'pointer';
             streetViewImage.style.borderRadius = '3px';
             streetViewImage.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
-            streetViewImage.style.pointerEvents = 'auto';
+            streetViewImage.style.pointerEvents = 'auto'; // クリック可能
+            streetViewImage.style.touchAction = 'auto'; // タッチイベントを有効にする
 
             streetViewImage.addEventListener('click', (e) => {
               e.stopPropagation();
@@ -265,6 +267,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
             contentDiv.appendChild(streetViewImage);
 
+            // コメントボタンの作成とイベントリスナーの設定
             const commentButton = document.createElement('button');
             commentButton.textContent = 'Comment';
             commentButton.style.marginTop = '5px';
@@ -276,6 +279,8 @@ const MapComponent: React.FC<MapComponentProps> = ({
             commentButton.style.borderRadius = '3px';
             commentButton.style.cursor = 'pointer';
             commentButton.style.fontSize = fontSize;
+            commentButton.style.pointerEvents = 'auto'; // クリック可能
+            commentButton.style.touchAction = 'auto'; // タッチイベントを有効にする
 
             commentButton.addEventListener('click', (e) => {
               e.stopPropagation();
@@ -317,7 +322,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             if (position) {
               this.containerDiv.style.left = position.x + 'px';
               this.containerDiv.style.top = position.y + 'px';
-              this.containerDiv.style.transform = 'translate(-50%, -125%)';
+              this.containerDiv.style.transform = 'translate(-50%, -120%)';
             }
           }
 
@@ -431,10 +436,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
         }
       })
       .catch((error) => {
-        console.error('Error loading Google Maps:', error);
+        console.error('Google Maps の読み込み中にエラーが発生しました:', error);
       });
-
-  }, [coordinateArray, iconPath, selectedIconPath, apiKey]); // useEffect の依存配列はここに
+  }, [coordinateArray, iconPath, selectedIconPath, apiKey]); // useEffect の依存配列
 
   useEffect(() => {
     const trimmedSearchTerm = searchTerm.trim().toLowerCase();
@@ -522,7 +526,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
       <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
         <DrawerContent>
           <DrawerHeader>
-            <DrawerTitle>Comments</DrawerTitle>
+            <DrawerTitle>Comment</DrawerTitle>
             <DrawerDescription>
               {drawerData ? (
                 <>
@@ -544,7 +548,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
                   )}
                 </>
               ) : (
-                <div>No data available</div>
+                <div>No data</div>
               )}
             </DrawerDescription>
           </DrawerHeader>
