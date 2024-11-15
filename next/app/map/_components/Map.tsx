@@ -168,7 +168,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
             this.containerDiv = document.createElement('div');
             this.containerDiv.style.position = 'absolute';
             this.containerDiv.style.pointerEvents = 'none';
-
+            this.containerDiv.style.pointerEvents = 'auto';
+            this.containerDiv.style.zIndex = '9999';
+            this.containerDiv.style.touchAction = 'auto'; // タッチイベントを有効にする
 
             const contentDiv = document.createElement('div');
             const isMobile = window.innerWidth <= 768;
@@ -256,7 +258,15 @@ const MapComponent: React.FC<MapComponentProps> = ({
             streetViewImage.style.touchAction = 'auto'; // タッチイベントを有効にする
             streetViewImage.style.zIndex = '10';
 
-            streetViewImage.addEventListener('click', () => {
+            streetViewImage.addEventListener('touchstart', (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              this.onStreetView();
+            });
+
+            streetViewImage.addEventListener('click', (e) => {
+              e.stopPropagation();
+              e.preventDefault();
               this.onStreetView();
             });
 
@@ -278,10 +288,17 @@ const MapComponent: React.FC<MapComponentProps> = ({
             commentButton.style.touchAction = 'auto'; // タッチイベントを有効にする
             commentButton.style.zIndex = '10';
 
-            commentButton.addEventListener('click', () => {
+            commentButton.addEventListener('touchstart', (e) => {
+              e.stopPropagation();
+              e.preventDefault();
               this.onComment(words, this.comment, this.id);
-          });
+            });
 
+            commentButton.addEventListener('click', (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              this.onComment(words, this.comment, this.id);
+            });
 
             contentDiv.appendChild(commentButton);
 
