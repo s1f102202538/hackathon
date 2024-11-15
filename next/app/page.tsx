@@ -5,6 +5,8 @@ import { Mic, BookMarked, MapPinCheckInside, Check } from 'lucide-react';
 import { Button } from './components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './components/ui/card';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('speak');
@@ -32,7 +34,18 @@ const Home = () => {
     <div className="min-h-screen bg-gradient-to-b from-sky-50 to-white flex flex-col">
       <header className="bg-gradient-to-r from-sky-400 to-blue-500 py-4 px-6 shadow-md">
         <div className="container mx-auto flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-white">Whispra</h1>
+          <Link href="/" aria-label="Navigate to Home Page" className="flex items-center">
+            <div className="flex">
+              <Image
+                src="/images/logo.png"
+                alt="Logo"
+                width={40}
+                height={40}
+                className="justify-center cursor-pointer transition-transform duration-300 hover:scale-110"
+              />
+              <h1 className="justify-center text-white font-bold-3xl text-3xl">Whispra</h1>
+            </div>
+          </Link>
           <Button
             variant="outline"
             className="bg-white text-blue-500 hover:bg-blue-50"
@@ -44,6 +57,7 @@ const Home = () => {
       </header>
 
       <main className="flex-1 container mx-auto px-4 py-8">
+        {/* セクション1: メインキャッチコピー */}
         <section className="mb-16 text-center">
           <h2 className="text-5xl font-bold text-gray-800 mb-6 animate-fade-in-down">
             Break the Language Barrier in Japan
@@ -62,9 +76,18 @@ const Home = () => {
           </div>
         </section>
 
+        {/* セクション2: Why Choose Whispra */}
         <section className="mb-16">
-          <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">
-            Why Choose <span className="font-bold text-sky-500 border-b-4 border-sky-500">Whispra</span>?
+          <h3 className="text-3xl font-bold text-gray-800 mb-8 flex justify-center items-center space-x-2">
+            <span className="mx-2">Why Choose</span>
+            <Image
+              src="/images/logo.png"
+              alt="Logo"
+              width={24}
+              height={24}
+              className="cursor-pointer transition-transform duration-300 hover:scale-110"
+            />
+            <span className="font-bold text-sky-500">Whispra</span>?
           </h3>
           <div className="grid md:grid-cols-2 gap-8">
             {features.map((feature, index) => (
@@ -84,6 +107,7 @@ const Home = () => {
           </div>
         </section>
 
+        {/* セクション3: How It Works */}
         <section className="mb-16 bg-gradient-to-r from-blue-100 to-sky-100 rounded-lg p-8">
           <h3 className="text-3xl font-bold text-gray-800 mb-8 text-center">How It Works</h3>
           <div className="w-full">
@@ -144,6 +168,7 @@ const Home = () => {
           </div>
         </section>
 
+        {/* セクション4: Call to Action */}
         <section className="mb-16">
           <Card className="bg-gradient-to-r from-blue-500 to-sky-500 text-white">
             <CardHeader>
@@ -167,6 +192,7 @@ const Home = () => {
           </Card>
         </section>
 
+        {/* セクション5: 最終呼びかけ */}
         <section className="text-center">
           <h2 className="text-3xl font-bold text-gray-800 mb-4">Start Your Japanese Adventure Today!</h2>
           <p className="text-xl text-gray-600 mb-8">Enter our app and transform the way you communicate in Japan.</p>
