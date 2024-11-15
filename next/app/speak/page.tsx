@@ -58,11 +58,11 @@ const SpeakPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Toaster />
       {/* Header */}
       <Header title="Let's speak Japanese" />
-      <main className="container mx-auto px-1 pt-2 pb-24">
+      <main className="container mx-auto px-1 pt-2 pb-24 flex-1">
         <p className="ml-4">{translations[usedLang]?.selectedLanguage}</p>
         {/* MainSpeech に usedLang と translations を渡す */}
         <MainSpeech usedLang={usedLang} translations={translations[usedLang]} />
