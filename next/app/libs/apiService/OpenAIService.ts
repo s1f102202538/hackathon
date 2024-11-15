@@ -1,4 +1,6 @@
 import OpenAI from 'openai';
+import SplitText from '../utility/splitText';
+
 export default class OpenAIService {
   private static readonly openai = new OpenAI({
     baseURL: `${process.env.OPENAI_BASE_URL}`,
@@ -7,35 +9,19 @@ export default class OpenAIService {
 
   private static readonly MAX_ATTEMPTS = 3;
 
-  public static async Ask(content: string): Promise<string[][]> {
-    let wordsArray = null;
-    let attempts = 0;
+  public static async Ask(content: string): Promise<string[]> {
+    const completion = await this.openai.chat.completions.create({
+      messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
+      model: 'gpt-4o-mini',
+    });
 
-    while (attempts < this.MAX_ATTEMPTS) {
-      const completion = await this.openai.chat.completions.create({
-        messages: [{ role: 'user', content: this.formatTranslateContentPrompt(content) }],
-        model: 'gpt-4o-mini',
-      });
+    const answer = completion.choices[0].message?.content;
 
-      const answer = completion.choices[0].message?.content;
-      if (!answer) {
-        throw new Error('ChatGPTの応答に回答が含まれていません');
-      }
-
-      wordsArray = this.createWordsArray(answer);
-      // 偶数のリストが取得できたら、break
-      if (wordsArray !== null) {
-        break;
-      }
-
-      attempts++;
+    if (!answer) {
+      throw new Error('OpenAIService: ChatGPT Answer is null');
     }
 
-    if (!wordsArray) {
-      throw new Error('正しい単語リストを取得できませんでした。');
-    }
-
-    return wordsArray;
+    return SplitText(answer);
   }
 
   // TODO プロンプトの改良
@@ -70,25 +56,5 @@ export default class OpenAIService {
 ${content}
     `;
     return prompt;
-  }
-
-  private static createWordsArray(answer: string): string[][] | null {
-    const wordsArray = answer.replace(/\s+/g, '').split(/,|、/);
-    console.log(wordsArray);
-
-    // 要素数が偶数か確認
-    if (wordsArray.length % 2 !== 0) {
-      return null;
-    }
-
-    // 配列を半分に分割
-    const halfIndex = wordsArray.length / 2;
-    const firstHalf = wordsArray.slice(0, halfIndex);
-    const secondHalf = wordsArray.slice(halfIndex);
-
-    console.log('前半:', firstHalf);
-    console.log('後半:', secondHalf);
-
-    return [firstHalf, secondHalf];
   }
 }

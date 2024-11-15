@@ -1,5 +1,6 @@
 import translate, { DeeplLanguages } from 'deepl';
 import { Languages } from '@prisma/client';
+import SplitText from '../utility/splitText';
 
 export default class DeepLService {
   private static readonly apiKey = `${process.env.DEEPL_API_KEY}`;
@@ -35,12 +36,7 @@ export default class DeepLService {
       target_lang: target,
       auth_key: this.apiKey,
     });
-    return this.createTranslateWordsArray(response.data.translations[0].text);
-  }
-
-  private static createTranslateWordsArray(translateText: string): string[] {
-    const wordsArray = translateText.replace(/\s+/g, '').split(/,|、|，/);
-    return wordsArray;
+    return SplitText(response.data.translations[0].text);
   }
 
   public static convertTranslateLanguages(lang: string): string {
