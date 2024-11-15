@@ -2,25 +2,20 @@
 
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
+import { Word } from 'app/types/Word';
 
 // 型定義にカスタムプロパティを追加
 declare global {
   interface MarkerWithWords extends google.maps.Marker {
-    words?: { userLang: string; ja: string; romaji?: string }[];
+    words: Word[];
   }
 }
 
 type Coordinate = {
   lat: number;
   lng: number;
-  words: { userLang: string; ja: string; romaji?: string }[];
+  words: Word[];
 };
-
-interface Word {
-  userLang: string;
-  ja: string;
-  romaji?: string; // 追加: ローマ字のフィールド（オプショナル）
-}
 
 interface MapComponentProps {
   coordinates: {
@@ -254,16 +249,13 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
         // マップの初期化
         if (!mapRef.current) {
-          mapRef.current = new google.maps.Map(
-            document.getElementById('map') as HTMLElement,
-            {
-              center: JAPAN_CENTER, // 初期は日本の中心に設定
-              zoom: JAPAN_ZOOM, // 初期は日本全体のズームレベルに設定
-              fullscreenControl: false, // マップ自体の全画面ボタンを無効化
-              mapTypeControl: false,
-              streetViewControl: true, // ストリートビューコントロールを有効化
-            }
-          );
+          mapRef.current = new google.maps.Map(document.getElementById('map') as HTMLElement, {
+            center: JAPAN_CENTER, // 初期は日本の中心に設定
+            zoom: JAPAN_ZOOM, // 初期は日本全体のズームレベルに設定
+            fullscreenControl: false, // マップ自体の全画面ボタンを無効化
+            mapTypeControl: false,
+            streetViewControl: true, // ストリートビューコントロールを有効化
+          });
 
           // ストリートビューの全画面ボタンを無効化
           const streetView = mapRef.current.getStreetView();
@@ -430,11 +422,9 @@ const MapComponent: React.FC<MapComponentProps> = ({
       if (selectedMarkers.length > 0) {
         // 中心点を計算
         const avgLat =
-          selectedMarkers.reduce((sum, marker) => sum + marker.getPosition()!.lat(), 0) /
-          selectedMarkers.length;
+          selectedMarkers.reduce((sum, marker) => sum + marker.getPosition()!.lat(), 0) / selectedMarkers.length;
         const avgLng =
-          selectedMarkers.reduce((sum, marker) => sum + marker.getPosition()!.lng(), 0) /
-          selectedMarkers.length;
+          selectedMarkers.reduce((sum, marker) => sum + marker.getPosition()!.lng(), 0) / selectedMarkers.length;
 
         mapRef.current.setCenter({ lat: avgLat, lng: avgLng });
       }

@@ -5,14 +5,9 @@ import WordStatsSearch from './_components/WordSearchInput';
 import axios from 'axios';
 import dynamic from 'next/dynamic';
 import { useAuth } from '@clerk/nextjs';
+import { Word } from 'app/types/Word';
 
 const MapComponent = dynamic(() => import('./_components/Map'), { ssr: false });
-
-interface Word {
-  userLang: string;
-  ja: string;       // 日本語のフィールド
-  romaji: string;   // 追加: ローマ字のフィールド
-}
 
 interface WordLocation {
   lat: string;
