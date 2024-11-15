@@ -1,3 +1,5 @@
+// HomePage.tsx
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -16,6 +18,8 @@ const HomePage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [searchKey, setSearchKey] = useState<number>(0);
   const [coordinates, setCoordinates] = useState<{
+    comment: string[];
+    id: number[];
     word: Word[][];
     Latitude: string[];
     Longitude: string[];
@@ -40,6 +44,8 @@ const HomePage: React.FC = () => {
       const data = await fetchWordsLocation();
       if (data) {
         setCoordinates({
+          comment: data.wordsLocationList.map((location: WordsLocation) => location.comment),
+          id: data.wordsLocationList.map((location: WordsLocation) => location.id),
           Latitude: data.wordsLocationList.map((location: WordsLocation) => location.lat),
           Longitude: data.wordsLocationList.map((location: WordsLocation) => location.lon),
           word: data.wordsLocationList.map((location: WordsLocation) =>
@@ -57,8 +63,6 @@ const HomePage: React.FC = () => {
 
   const iconPath = '/images/mapicon_pin_red1_32x32.png';
   const selectedIconPath = '/images/mapicon_pin_blue1_32x32.png';
-
-  console.log('Coordinates:', coordinates, 'Search Term:', searchTerm, 'Search Key:', searchKey);
 
   const handleSearch = (searchTerm: string) => {
     setSearchTerm(searchTerm);
