@@ -26,7 +26,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   const { isRecordingJ, setIsRecordingJ, textJ, transcriptJ } = useJaSpeechRecognition();
 
   // 観光客用の状態
-  const [inputText, setInputText] = useState<string>(translations?.defaultInputText || 'Where is the Hachikoumae?');
+  const [inputText, setInputText] = useState<string>('');
   const [wordsArray, setWordsArray] = useState<Word[]>([]);
 
   // 日本人用の状態

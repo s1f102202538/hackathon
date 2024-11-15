@@ -12,7 +12,7 @@ import WordDetail from './_components/WordDetail';
 import WordCard from './_components/WordCard';
 import SearchBar from './_components/SearchBar';
 
-const categories = ['あ', 'か', 'さ', 'た', 'な', 'は', 'ま', 'や', 'ら', 'わ', 'その他'];
+const categories = ['あ', 'か', 'さ', 'た', 'な', 'は', 'ま', 'や', 'ら', 'わ', 'Others'];
 
 const getCategoryForWord = (word: string): string => {
   const firstChar = word.charAt(0);
@@ -85,7 +85,7 @@ const WordLists = () => {
       <SearchBar searchQuery={searchQuery} onSearchChange={setSearchQuery} />
 
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-28 px-4 py-2">
+        <div className="h-28 px-4 py-2">
           <div className="flex flex-wrap gap-2">
             {categories.map((category) => (
               <Button
@@ -99,7 +99,7 @@ const WordLists = () => {
               </Button>
             ))}
           </div>
-        </ScrollArea>
+        </div>
 
         <ScrollArea className="h-[calc(100vh-300px)] px-4">
           <div className="space-y-4">
