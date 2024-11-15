@@ -24,10 +24,10 @@ export async function POST(req: NextRequest): Promise<NextResponse<ExtractionWor
     const userUsedLang = await UserService.GetUserUsedLang(params.clientId);
     const translateLang = await DeepLService.UserUsedLangConvertTranslateLanguages(userUsedLang);
 
-    // DeepLの翻訳前にクエスチョンマークの削除
-    const deleteQuestionParams = params.content.replace(/\?/g, '');
+    // 特殊文字などを除外
+    const text = params.content.replace(/[!#&?]/g, '');
     // ユーザーの入力を一度日本語に翻訳
-    const translateContent = await DeepLService.TranslatorText(deleteQuestionParams, 'JA');
+    const translateContent = await DeepLService.TranslatorText(text, 'JA');
     // const translateContent = await DeepLService.TranslatorText(params.content, 'JA');
     // 単語抽出
     const kanji = await OpenAIService.Ask(translateContent);
