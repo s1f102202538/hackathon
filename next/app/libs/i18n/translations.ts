@@ -10,18 +10,13 @@ export type Translations = {
 export const translations: Translations = {
   'en-US': {
     selectedLanguage: 'Selected language: English (US)',
-    defaultInputText: 'Where is the Hachikoumae?',
+    defaultInputText: 'Where is the Ikebukuro?',
     inputPlaceholder: 'Enter text here...',
   },
   'en-GB': {
     selectedLanguage: 'Selected language: English (GB)',
     defaultInputText: 'Where is the Hachikoumae?',
     inputPlaceholder: 'Enter text here...',
-  },
-  'ja-JP': {
-    selectedLanguage: '選択された言語: 日本語',
-    defaultInputText: 'ハチ公前はどこですか？',
-    inputPlaceholder: 'テキストを入力してください...',
   },
   'fr-FR': {
     selectedLanguage: 'Langue sélectionnée: Français',
