@@ -10,12 +10,12 @@ import { useAuth } from '@clerk/nextjs';
 import { Word } from 'app/types/Word';
 import toast from 'react-hot-toast';
 import { debounce } from 'lodash';
-import { Volume2, Loader2 } from 'lucide-react'; // Loader2 をインポート
-import { Translations } from '../../libs/i18n/translations'; // 翻訳データの型をインポート
+import { Volume2, Loader2 } from 'lucide-react';
+import { Translations } from '../../libs/i18n/translations';
 
 type MainSpeechProps = {
-  usedLang: string; // string に限定
-  translations?: Translations[string]; // オプショナルな翻訳データ
+  usedLang: string;
+  translations?: Translations[string];
 };
 
 const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
@@ -38,19 +38,23 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   // ローディング状態の追加
   const [isTranslateLoading, setIsTranslateLoading] = useState<boolean>(false);
 
-  // 観光客の音声認識が終了したときに text を inputText に反映する
+  // 観光客の音声認識中に inputText をリアルタイム更新
   useEffect(() => {
-    if (!isRecording && text) {
+    if (isRecording) {
+      setInputText(transcript);
+    } else if (text) {
       setInputText(text);
     }
-  }, [isRecording, text]);
+  }, [isRecording, transcript, text]);
 
-  // 日本人の音声認識が終了したときに textJ を inputTextJ に反映する
+  // 日本人の音声認識中に inputTextJ をリアルタイム更新
   useEffect(() => {
-    if (!isRecordingJ && textJ) {
+    if (isRecordingJ) {
+      setInputTextJ(transcriptJ);
+    } else if (textJ) {
       setInputTextJ(textJ);
     }
-  }, [isRecordingJ, textJ]);
+  }, [isRecordingJ, transcriptJ, textJ]);
 
   // 観光客用のAPI呼び出し関数
   const fetchWords = useCallback(async () => {
@@ -67,11 +71,11 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
     try {
       const response = await axios.post('/api/word/extraction', {
         clientId: userId,
-        content: inputText, // 録音したテキストを送信
+        content: inputText,
       });
       console.log(response);
       const cleanedWordsArray = response.data.wordsList.map((word: Word) => ({
-        ja: word.ja.replace(/["']/g, ''), // 日本語文字列から二重引用符と単一引用符を削除
+        ja: word.ja.replace(/["']/g, ''),
         userLang: word.userLang.replace(/["']/g, ''),
         romaji: word.romaji.replace(/["']/g, ''),
       }));
@@ -108,9 +112,9 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
 
   // 観光客のTranslateボタンのクリックハンドラー
   const handleTranslateClick = useCallback(async () => {
-    setIsTranslateLoading(true); // ローディング開始
+    setIsTranslateLoading(true);
     await fetchWords();
-    setIsTranslateLoading(false); // ローディング終了
+    setIsTranslateLoading(false);
   }, [fetchWords]);
 
   // 日本人側の録音ボタンのクリックハンドラー
@@ -148,7 +152,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   const debouncedTranslateJapanese = useCallback(
     debounce((jaText: string) => {
       translateJapanese(jaText);
-    }, 500), // 500ms の遅延
+    }, 500),
     [translateJapanese]
   );
 
@@ -159,7 +163,6 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
       setTranslatedText('');
     }
 
-    // クリーンアップ関数でデバウンスをキャンセル
     return () => {
       debouncedTranslateJapanese.cancel();
     };
@@ -169,7 +172,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
   const speakTranslatedText = useCallback(() => {
     if ('speechSynthesis' in window && translatedText) {
       const utterance = new SpeechSynthesisUtterance(translatedText);
-      utterance.lang = usedLang || 'ja-JP'; // usedLang を使用、デフォルトは 'ja-JP'
+      utterance.lang = usedLang || 'ja-JP';
       window.speechSynthesis.speak(utterance);
     } else {
       console.error('このブラウザはSpeechSynthesis APIに対応していないか、翻訳テキストがありません。');
@@ -186,9 +189,9 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
         transcript={transcript}
         inputText={inputText}
         setInputText={setInputText}
-        handleTranslate={handleTranslateClick} // Translateボタンを表示
-        translations={translations} // 翻訳データを渡す
-        isLoading={isTranslateLoading} // ローディング状態を渡す
+        handleTranslate={handleTranslateClick}
+        translations={translations}
+        isLoading={isTranslateLoading}
       >
         {/* TranslationCardsの表示またはローディングスピナー */}
         {isTranslateLoading ? (
@@ -212,9 +215,8 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
         transcript={transcriptJ}
         inputText={inputTextJ}
         setInputText={setInputTextJ}
-        // handleTranslate を渡さないのでTranslateボタンは表示されません
-        translations={translations} // 翻訳データを渡す（必要に応じて）
-        isLoading={false} // 必要に応じて設定
+        translations={translations}
+        isLoading={false}
       >
         {/* 翻訳結果の表示 */}
         <div className="mt-2 p-2 border rounded-md bg-gray-50 flex items-center justify-between">
