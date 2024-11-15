@@ -126,7 +126,7 @@ const MainSpeech: React.FC<MainSpeechProps> = ({ usedLang, translations }) => {
           const { latitude, longitude } = position.coords;
 
           try {
-            await axios.post('/api/words-location/save', {
+            await axios.post('/api/words-location/save/location', {
               clientId: userId,
               words: wordsArray,
               lat: latitude.toString(),

@@ -8,7 +8,8 @@ const Loading = () => {
         alt="Logo"
         width={80}
         height={80}
-        className="animate-spin cursor-pointer transition-transform duration-300 hover:scale-110"
+        style={{ animation: "spin 1.5s linear infinite" }} // 1.5秒で1周
+        className="cursor-pointer transition-transform duration-300 hover:scale-110"
       />
     </div>
   );
