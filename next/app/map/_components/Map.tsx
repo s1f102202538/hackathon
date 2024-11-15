@@ -3,8 +3,14 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { Loader } from '@googlemaps/js-api-loader';
 import { Word } from 'app/types/Word';
-
-
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+} from "../../components/ui/drawer";
 
 // 型定義にカスタムプロパティを追加
 declare global {
@@ -54,6 +60,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
   const markersRef = useRef<MarkerWithWords[]>([]);
   const infoWindowRef = useRef<CustomInfoWindowType | null>(null);
   const [currentSelectedTitles, setCurrentSelectedTitles] = useState<string[]>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerData, setDrawerData] = useState<Word[] | null>(null);
+
+  // Function to open Drawer
+  const handleOpenDrawer = (words: Word[]) => {
+    setDrawerData(words);
+    setIsDrawerOpen(true);
+  };
+
+  // Function to close Drawer
+  const handleCloseDrawer = () => {
+    setIsDrawerOpen(false);
+    setDrawerData(null);
+  };
 
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_APIKEY || '';
 
@@ -91,17 +111,20 @@ const MapComponent: React.FC<MapComponentProps> = ({
           private containerDiv: HTMLDivElement;
           private apiKey: string;
           private onStreetView: () => void;
+          private onComment: (words: Word[]) => void; // New callback
 
           constructor(
             position: google.maps.LatLng,
-            words: { userLang: string; ja: string; romaji?: string }[],
+            words: Word[],
             onStreetView: () => void,
+            onComment: (words: Word[]) => void, // Receive the callback
             apiKey: string
           ) {
             super();
             this.position = position;
             this.apiKey = apiKey;
             this.onStreetView = onStreetView;
+            this.onComment = onComment; // Assign the callback
 
             this.containerDiv = document.createElement('div');
             this.containerDiv.style.position = 'absolute';
@@ -118,7 +141,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             contentDiv.style.boxShadow = '0 1px 4px rgba(0,0,0,0.3)';
             contentDiv.style.position = 'relative';
             contentDiv.style.textAlign = 'center';
-            contentDiv.style.width = '250px'; // 幅を調整
+            contentDiv.style.width = '300px'; // 幅を調整
 
             // 単語を包むコンテナを作成
             const wordsContainer = document.createElement('div');
@@ -180,7 +203,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             const streetViewImage = document.createElement('img');
             streetViewImage.src =
               'https://maps.googleapis.com/maps/api/streetview?' +
-              'size=240x100' +
+              'size=290x100' +
               '&location=' +
               this.position.lat() +
               ',' +
@@ -190,7 +213,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
             streetViewImage.alt = 'Street View Image';
             streetViewImage.style.display = 'block';
             streetViewImage.style.margin = '5px auto 0 auto'; // 中央揃え
-            streetViewImage.style.width = '240px'; // 幅を調整
+            streetViewImage.style.width = '290px'; // 幅を調整
             streetViewImage.style.height = '100px';
             streetViewImage.style.cursor = 'pointer';
             streetViewImage.style.borderRadius = '3px';
@@ -205,6 +228,28 @@ const MapComponent: React.FC<MapComponentProps> = ({
             });
 
             contentDiv.appendChild(streetViewImage);
+
+            // Add "Comment" Button
+            const commentButton = document.createElement('button');
+            commentButton.textContent = 'Comment';
+            commentButton.style.marginTop = '5px';;
+            commentButton.style.backgroundColor = '#007bff';
+            commentButton.style.color = '#fff';
+            commentButton.style.width = '100%';
+            commentButton.style.height = '20px';
+            commentButton.style.border = 'none';
+            commentButton.style.borderRadius = '3px';
+            commentButton.style.cursor = 'pointer';
+            commentButton.style.fontSize = fontSize;
+
+            commentButton.addEventListener('click', (e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              console.log('Comment button clicked');
+              this.onComment(words); // Trigger the callback with words
+            });
+
+            contentDiv.appendChild(commentButton);
 
             const arrow = document.createElement('div');
             arrow.style.position = 'absolute';
@@ -249,7 +294,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
           }
         }
 
-        // マップの初期化
+        // Initialize the map
         if (!mapRef.current) {
           mapRef.current = new google.maps.Map(document.getElementById('map') as HTMLElement, {
             center: JAPAN_CENTER, // 初期は日本の中心に設定
@@ -305,7 +350,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
 
               infoWindowRef.current = new CustomInfoWindow(
                 marker.getPosition()!,
-                coord.words,
+                coord.words, // Pass words array
                 () => {
                   const streetView = mapRef.current!.getStreetView();
                   streetView.setPosition(marker.getPosition()!);
@@ -315,6 +360,7 @@ const MapComponent: React.FC<MapComponentProps> = ({
                   });
                   streetView.setVisible(true);
                 },
+                handleOpenDrawer, // Pass the callback
                 apiKey
               );
 
@@ -443,12 +489,41 @@ const MapComponent: React.FC<MapComponentProps> = ({
   return (
     <>
       <div id="map" className="custom-map" style={{ width: '100%', height: '100vh' }} />
-      <style>{`
-        /* Zoom ControlとStreet View Controlの位置を調整 */
-        .custom-map .gm-bundled-control-on-bottom {
-          bottom: 35% !important;
-        }
-      `}</style>
+      <style>
+        {`
+          /* Zoom ControlとStreet View Controlの位置を調整 */
+          .custom-map .gm-bundled-control-on-bottom {
+            bottom: 35% !important;
+          }
+        `}
+      </style>
+
+      {/* Drawer Component */}
+      <Drawer open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <DrawerContent>
+          <DrawerHeader>
+            <DrawerTitle>Comments</DrawerTitle>
+            <DrawerDescription>
+              <p>No data available.</p>
+            </DrawerDescription>
+          </DrawerHeader>
+          <DrawerFooter>
+            <button
+              onClick={handleCloseDrawer}
+              style={{
+                padding: '8px 16px',
+                backgroundColor: '#6c757d',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              Close
+            </button>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 };
