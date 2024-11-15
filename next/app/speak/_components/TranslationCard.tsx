@@ -17,14 +17,14 @@ const TranslationCard = ({ word }: TranslationCardProps) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow p-4 mt-2 hover:bg-sky-400" onClick={() => speakText(word.ja)}>
+    <div className="bg-white rounded-xl shadow pl-2 pt-2 hover:bg-sky-400" onClick={() => speakText(word.ja)}>
       <div className="text-b">
-        <p className="text-black/50">{word.userLang}</p>
+        <p className="text-black/50 text-xs">{word.userLang}</p>
         <div className="flex justify-between">
           <p className="text-lg text-gray-800">{word.romaji}</p>
-          <Volume2 className="text-sky-500 hover:text-sky-700" />
+          <Volume2 className="text-sky-500 hover:text-sky-700 mr-2" />
         </div>
-        <p className="text-sky-500">{word.ja}</p>
+        <p className="text-sky-500 text-xs">{word.ja}</p>
       </div>
     </div>
   );

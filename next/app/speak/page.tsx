@@ -51,13 +51,18 @@ const SpeakPage = () => {
     return <div>Loading...</div>;
   }
 
+  // usedLang が null の場合は何も表示しない（リダイレクトされているはず）
+  if (!usedLang) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Toaster />
       {/* Header */}
       <Header title="Let's speak Japanese" />
       <main className="container mx-auto px-1 pt-2 pb-24">
-        <p>{usedLang && translations[usedLang]?.selectedLanguage}</p>
+        <p className="ml-4">{translations[usedLang]?.selectedLanguage}</p>
         {/* MainSpeech に usedLang と translations を渡す */}
         <MainSpeech usedLang={usedLang} translations={translations[usedLang]} />
       </main>
